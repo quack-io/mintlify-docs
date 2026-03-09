@@ -1,14 +1,16 @@
 ---
 title: "Overview"
 sidebarTitle: "Introduction"
-description: "Apollo-1: The neuro-symbolic foundation model that solves task-oriented conversational AI."
+description: "Apollo-1: The first AI model with an open brain."
 ---
 
-## Apollo-1: The Neuro-Symbolic Foundation Model
+## Apollo-1: The First AI Model with an Open Brain
 
-Traditional language models rely on transformer architectures, which excel at pattern recognition and language generation. However — when it comes to agentic use cases, situations where the model needs to perform actions, make decisions, or interact with tools — transformer-based LLMs face significant challenges.
+The brain of every AI agent is where its decisions are made. In most agents, that brain is closed — a black box that takes suggestions and produces outputs. You can talk to the agent. You can't talk to it about how it thinks.
 
-**Apollo-1 is different.** By merging neural networks with symbolic reasoning, it offers complete steerability and unparalleled control for building production-grade AI agents.
+Apollo-1 is different. Its brain is symbolic, structured, and open. You can see how it thinks. You can change how it thinks. You can ask it why it did what it did and get a real answer. You can tell it to behave differently and know that it will — deterministically, permanently, in every conversation where that situation arises.
+
+This is what it takes to trust an agent with real responsibility.
 
 <CardGroup cols={3}>
   <Card
@@ -16,147 +18,103 @@ Traditional language models rely on transformer architectures, which excel at pa
     icon="message"
     href="/messaging-api/overview"
   >
-    Send and receive messages across channels. Build conversational experiences with full context management.
+    Send messages to AI agents and receive responses via REST or WebSocket streaming.
   </Card>
   <Card
     title="Agent Builder API"
     icon="robot"
     href="/agent-builder/overview"
   >
-    Create AI agents with tools, knowledge bases, and custom workflows. Define rules and guardrails declaratively.
+    Create and configure AI agents with tools, knowledge bases, rules, and integrations.
   </Card>
   <Card
     title="CLI"
     icon="terminal"
     href="/cli/overview"
   >
-    Build and manage agents from your terminal. Local development, testing, and deployment in one tool.
+    Build and manage agents from your terminal. Local-first development workflow.
   </Card>
 </CardGroup>
 
 ---
-
-## Why Transformer-Based LLMs Don't Make Good Agents
-
-Apollo-1's neuro-symbolic architecture solves the five core problems with using traditional LLMs as agents.
 
 <AccordionGroup>
-  <Accordion title="Transparency — A white-box model" icon="eye">
-    Apollo's neuro-symbolic architecture allows users to trace and understand every decision-making step the model takes. Each response is generated through a structured reasoning process that is accessible and interpretable.
+  <Accordion title="01. Agents That Act on Your Behalf" icon="robot">
+    Two different things are emerging under the name "agent."
 
-    - **Diagnosable**: Developers can identify, diagnose, and fix issues efficiently
-    - **Auditable**: Decisions provide a clear trail of how responses were generated — essential for compliance
-    - **Customizable**: Users can modify reasoning components without affecting the entire system
+    Open-ended agents work for users. Coding assistants, computer-use agents, personal AI. You're the principal. If the agent interprets your intent slightly differently each time, that's fine. You're in the loop. You'll correct it. Flexibility is the point.
+
+    Task-oriented agents work on behalf of entities. An airline's booking agent. A bank's support agent. An insurer's claims agent. A dental clinic's scheduling assistant. A SaaS company's onboarding flow. These agents serve users, but they represent the entity. The entity is the principal.
+
+    The entity could be a Fortune 500 or a five-person company. It doesn't matter. What matters is that when the agent gets something wrong, there's no user in the loop to catch it. Money moves. Appointments break. Policies are violated. The agent is the loop.
+
+    So the entity needs more than an agent that works. It needs access to how the agent thinks — so it can direct it, inspect it, debug it, and improve it. It needs an agent whose brain is open.
   </Accordion>
 
-  <Accordion title="Controllability — An advanced instruction environment" icon="sliders">
-    All components — API integrations, conditional rules, policies, and tool-specific settings — are organized within a structured framework. Apollo allows precise control over its outputs.
+  <Accordion title="02. What an Open Brain Makes Possible" icon="brain">
+    Every AI agent has a brain — the thing that makes its decisions. The question is whether you can get to it.
 
-    - **Structured**: Rules and guidelines the model strictly adheres to during interactions
-    - **Selective**: At inference time, Apollo retrieves only the relevant instructions for the specific situation
-    - **Entity-aware**: Structured entity representations determine which instructions apply to each interaction
+    A closed brain takes suggestions. You write a prompt. You hope the agent follows it. When it doesn't, you rewrite the prompt and hope again. You can see what the agent did but not why. You can't point at a specific decision and change how it's made. You can't ask the agent why it refused a refund and get a real answer. You can't tell it "stop asking about budget" and know it will stop. The brain is doing something in there. You just can't reach it.
+
+    An open brain is transparent, conversational, and programmable. You can see every decision the agent made — which rules fired, what state it was in, why it acted or refused to act. You can talk to the agent about how it behaves, not just use it. And you can change how it thinks, in natural language, with changes that are deterministic and permanent.
+
+    This isn't a feature. It's a property of the architecture. And everything follows from it.
+
+    **Control.** The entity defines constraints — the payment won't process without confirmation, the refund won't issue without documentation — and they hold absolutely. Not because the agent was asked nicely. Because the brain enforces them architecturally. Control is the most immediate thing an open brain provides, but it's only the beginning.
+
+    **Debugging.** Something goes wrong. You open the brain. You see what happened — not a log of inputs and outputs, but a structured record of the reasoning itself. You see which constraint fired incorrectly, or which one didn't fire when it should have. You fix it. You verify the fix in the trace. Done. This is engineering, not guesswork.
+
+    **Optimization.** You read traces from hundreds of conversations. You see exactly where users drop off or convert. You see which decisions led to which outcomes. You adjust — not by A/B testing prompts and correlating at the aggregate level, but by pointing at specific decisions and changing them, with measurable effects.
+
+    **Evolution.** Policies change — describe the new policy, the brain updates. Edge cases appear — read the trace, describe what should happen instead. New workflows are needed — describe them, the brain generates the configuration. Each cycle makes the agent more precise. Each improvement is verifiable. The system converges toward whatever the entity needs it to be.
+
+    These aren't separate products bolted onto an agent. They're all consequences of one property: the brain is open. You have access. Everything else follows.
   </Accordion>
 
-  <Accordion title="Predictability — A structured reasoning process" icon="diagram-project">
-    Apollo follows a deterministic, multi-step reasoning process for every interaction:
+  <Accordion title="03. Closed Brains" icon="lock">
+    Most AI agents today have closed brains. The industry has converged on two main approaches for building task-oriented agents, and a third is emerging. None of them open the brain. And the reasons are architectural — not temporary limitations waiting for better models.
 
-    1. User input is translated into the **Structured Interaction State** — parsing natural language into a formal representation
-    2. Cross-references with predefined **rules and policies** to ensure compliance
-    3. Decides which **action** to take: answer, clarify, or initiate a process
-    4. Selects and activates **pre-configured tools** — executing multiple simultaneously if needed
-    5. **Verifies results** against expected outcomes with error checking and validation
-    6. Triggers **fallback mechanisms** if issues arise, ensuring smooth continuation
-    7. Only after all steps completes does Apollo **generate the final response** — accurate, contextual, and compliant
-  </Accordion>
+    ### LLM Agents
 
-  <Accordion title="Tool Use — 100% successful tool activation" icon="plug">
-    Apollo activates tools based on context and intent — without ambiguity.
+    Function-calling agents give an LLM access to tools and let it decide when to call them. Flexible conversation. Natural handling of unexpected inputs.
 
-    - **Tool-native**: 100% success rate in tool activation — eliminates API call failures
-    - **Unlimited tools**: Supports any number of tools through its structured handling framework
-    - **Grounded answers**: Returns responses rooted in real data sources instead of relying on training data
-    - **Tool-specific rules**: Detailed, per-tool guidelines enhance functionality and user experience
-    - **Seamless integration**: Processes tool outputs and integrates them into responses natively
-  </Accordion>
+    But the brain is closed.
 
-  <Accordion title="Fine-Tuning — Continuous improvement via human feedback" icon="chart-line">
-    Apollo enables granular feedback on specific reasoning elements, allowing targeted improvements beyond conversation-level adjustments.
+    When an LLM makes a decision, it samples from a probability distribution over tokens. It doesn't compute from explicit state. It doesn't evaluate constraints against a symbolic representation. It predicts the most likely next output. You can see what it decided. You cannot see how or why — because there is no structured decision process. There are weights.
 
-    - **Granular feedback**: Target specific reasoning steps, not just overall conversations
-    - **Rapid adaptation**: Combines traditional fine-tuning with reinforcement learning for quick updates
-    - **Continuous improvement**: Regular updates prevent stagnation between major version releases
-    - **Cumulative learning**: Each version is better aligned than the previous one
+    So control is approximate. You can make unwanted behaviors less likely. You cannot make them impossible. Debugging is hope — you modify the prompt, it seems to work, it fails differently next week. Optimization is correlation, not causation — you can't point at a specific decision and know why it went one way. Improvement doesn't converge — each fix might break something else, and you can't verify otherwise.
+
+    This is not a temporary limitation. A transformer generates outputs by sampling from a probability distribution. That is the mechanism. No amount of scaling changes it. The mechanism that makes LLMs brilliant at open-ended conversation is the same mechanism that keeps their brains permanently closed.
+
+    ### Orchestration
+
+    Orchestration wraps LLMs in workflow systems — state machines, routing logic, branching conditions. The state machine provides control. The LLM provides flexibility.
+
+    The brain isn't closed. It's scattered.
+
+    The state machine has explicit logic you can read. But it's fragmented across hundreds of branches, coded per-workflow, per-tool, per-condition. When the user goes off-script, the system either breaks or hands off to the LLM — at which point you're back to a closed brain. Control and flexibility live in separate systems. You have access to part of the brain, part of the time.
+
+    Improvement means more branches. More branches means more complexity. More complexity means more fragility. The brain gets harder to access as it grows.
+
+    ### Stateful Runtimes
+
+    The newest approach — including OpenAI's Stateful Runtime Environment — adds persistent state management around LLM agents. Memory carries forward. Tool state persists. Permission boundaries hold across steps.
+
+    This is better infrastructure around a closed brain. The LLM is still the decision-maker. The state is managed around it, not within it. Guardrails check what the model decided after it decides — they don't prevent the decision from being made. The brain is still closed. The room around it is just nicer.
+
+    This is neural and symbolic: two separate systems, layered. Not neuro-symbolic: one system, unified.
+
+    ### Why They Can't Open
+
+    These architectures can't open the brain because there's no brain to open. The LLM has weights — not a structured decision process you can inspect or modify. The orchestration framework has a flowchart — explicit but fragmented, and mute the moment it hands off to the LLM. The stateful runtime has infrastructure — state management, persistence, permissions — but the thing making decisions is still a black box at the center.
+
+    An open brain requires structured symbolic reasoning that is native to how the agent thinks. Not layered around it. Native. The reasoning must be symbolic so it can be inspected and modified. It must be deterministic so changes produce guaranteed outcomes. And it must be unified with neural language understanding so the agent can still handle real conversations.
+
+    You can't open a brain that doesn't exist. LLMs have weights. Orchestration has flowcharts. Stateful runtimes have furniture.
+
+    Apollo-1 has a brain. And it's open.
   </Accordion>
 </AccordionGroup>
-
----
-
-## The Neuro-Symbolic Advantage
-
-The neuro-symbolic approach bridges the gap between the flexibility of neural networks and the precision of symbolic logic.
-
-<CardGroup cols={2}>
-  <Card title="Explainability" icon="magnifying-glass">
-    Symbolic reasoning provides insight into the model's decision-making process. Users can trace how the model arrives at specific responses, enhancing trust and accountability.
-  </Card>
-  <Card title="Modularity" icon="cubes">
-    Components can be modified or replaced without affecting the entire system. This flexibility facilitates updates, customization, and scalability.
-  </Card>
-  <Card title="Rule Integration" icon="scale-balanced">
-    Explicit rules can be incorporated directly into the reasoning process. This ensures compliance with regulations, policies, and domain-specific requirements.
-  </Card>
-  <Card title="Data Efficiency" icon="database">
-    Symbolic components reduce the need for extensive datasets. By leveraging existing knowledge bases and rules, Apollo-1 performs effectively even with limited training data.
-  </Card>
-</CardGroup>
-
----
-
-## Structured Interaction State
-
-At the heart of Apollo-1's capabilities lies the **Structured Interaction State** — a symbolic, parameterized representation of each interaction created by collecting and organizing sensory data. By converting unstructured inputs into a structured format, Apollo-1 achieves a higher level of understanding and precision.
-
-<CardGroup cols={3}>
-  <Card title="Human & Machine Readable" icon="file-code">
-    The structured representation is readable by both humans and software, facilitating transparency and ease of interpretation.
-  </Card>
-  <Card title="Captures Context" icon="brain">
-    Includes intents, entities, sentiments, and contextual information essential for accurate processing.
-  </Card>
-  <Card title="Enables Reasoning" icon="gears">
-    This structured state is the basis upon which rules, policies, and reasoning processes are applied.
-  </Card>
-</CardGroup>
-
----
-
-## Apollo vs. Transformer-Based Agents
-
-| Feature | Transformer-Based Agents | Apollo-Based Agents |
-| --- | --- | --- |
-| **Transparency** | Black-box model with opaque reasoning | White-box model with transparent reasoning processes |
-| **Controllability** | System prompts are the primary control mechanism | Control levers available throughout the system |
-| **Predictability** | Outcomes are often unpredictable | Outcomes are nearly deterministic |
-| **Tool Use** | Struggles with consistently generating structured outputs | Tool-native with 100% success rate |
-| **Fine-Tuning** | Fine-tuning for agents is challenging | Supports continuous fine-tuning, even on fine-tuned models |
-
----
-
-## Safety & Accuracy
-
-Combining generative and rule-based approaches minimizes the risks typically associated with AI outputs.
-
-<CardGroup cols={3}>
-  <Card title="Content Moderation" icon="shield">
-    Adheres to predefined rules to avoid generating inappropriate or harmful content.
-  </Card>
-  <Card title="Information Accuracy" icon="circle-check">
-    Provides consistent and accurate information, reducing misinformation.
-  </Card>
-  <Card title="Auditability" icon="clipboard-check">
-    The reasoning process can be reviewed and audited, meeting compliance and governance standards.
-  </Card>
-</CardGroup>
 
 ---
 
@@ -164,12 +122,12 @@ Combining generative and rule-based approaches minimizes the risks typically ass
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="bolt" href="/quickstart">
-    Get your first agent responding in under 5 minutes.
+    Understand the products and send your first message.
   </Card>
   <Card title="Authentication" icon="key" href="/messaging-api/authentication">
     Learn how to authenticate your API requests.
   </Card>
-<Card title="Changelog" icon="clock-rotate-left" href="/changelog">
+  <Card title="Changelog" icon="clock-rotate-left" href="/changelog">
     Latest updates and API changes.
   </Card>
 </CardGroup>
