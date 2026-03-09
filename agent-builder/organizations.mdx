@@ -1,0 +1,124 @@
+---
+title: "Organizations"
+description: "List and retrieve organizations."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+---
+
+## List My Organizations
+
+Returns a paginated list of organizations the authenticated user belongs to.
+
+### GET `/identity/memberships/my/organizations`
+
+#### Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+  Results per page.
+</ParamField>
+
+<ParamField query="sortOrder" type="string" default="ASC">
+  Sort order. `ASC` or `DESC`.
+</ParamField>
+
+<ParamField query="sortBy" type="string" default="createdAt">
+  Field to sort by.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/identity/memberships/my/organizations?page=1&limit=50&sortOrder=ASC&sortBy=createdAt" \
+  -H "auth-token: your-jwt-token" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "docs": [
+      {
+        "_id": "string",
+        "id": "string",
+        "name": "string",
+        "niceName": "string",
+        "status": "ACTIVE",
+        "createdAt": "string",
+        "updatedAt": "string"
+      }
+    ],
+    "totalDocs": 10,
+    "limit": 50,
+    "totalPages": 1,
+    "page": 1,
+    "hasPrevPage": false,
+    "hasNextPage": false,
+    "prevPage": null,
+    "nextPage": null
+  },
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Cache the organization list** — Organization memberships change infrequently. Cache the response locally and refresh only on login or when the user explicitly switches contexts.
+- **Use `hasNextPage` for pagination** — Don't assume a fixed page count. Use the `hasNextPage` flag to determine whether to fetch more results.
+- **Filter by `status: ACTIVE`** — The response may include inactive organizations. Filter client-side or let the user choose only from active ones.
+
+---
+
+## Get Organization
+
+Retrieve a single organization by ID.
+
+### GET `/network/v1/organization/{orgId}`
+
+#### Path Parameters
+
+<ParamField path="orgId" type="string" required>
+  The organization ID.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/organization/org-id-here" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "_id": "string",
+    "id": "string",
+    "name": "string",
+    "niceName": "string",
+    "status": "ACTIVE",
+    "createdAt": "string",
+    "updatedAt": "string"
+  }
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Use to validate org context** — Call this after switching organizations to confirm the org exists and is active before making further requests.
+- **Store `niceName` for display** — Use `niceName` (human-readable) in UI, and `_id` or `id` for API calls.

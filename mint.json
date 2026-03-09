@@ -72,8 +72,6 @@
       "pages": [
         "introduction",
         "quickstart",
-        "authentication",
-        "sdks",
         "changelog"
       ]
     },
@@ -81,6 +79,7 @@
       "group": "Messaging API",
       "pages": [
         "messaging-api/overview",
+        "messaging-api/authentication",
         "messaging-api/tasks",
         "messaging-api/send-message",
         "messaging-api/websocket",
@@ -90,7 +89,17 @@
     {
       "group": "Agent Builder API",
       "pages": [
-        "agent-builder/overview"
+        "agent-builder/overview",
+        "agent-builder/authentication",
+        "agent-builder/identity",
+        "agent-builder/organizations",
+        "agent-builder/accounts",
+        "agent-builder/networks",
+        "agent-builder/settings-read",
+        "agent-builder/settings-write",
+        "agent-builder/knowledge-bases",
+        "agent-builder/api-workflow",
+        "agent-builder/local-serve"
       ]
     },
     {

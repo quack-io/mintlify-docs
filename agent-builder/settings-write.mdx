@@ -1,0 +1,334 @@
+---
+title: "Agent Settings — Write"
+sidebarTitle: "Settings (Write)"
+description: "Create, update, and delete agent configuration: tools, parameters, entities, integrations, and general settings."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+**Base URL:** `https://api-staging.internal-aui.io/v3-1/agent-settings/v1/`
+
+All write endpoints include common query params: `updated_by`, `network_id`, `account_id`, `organization_id`, `network_category_id`.
+
+---
+
+## Agent Migration
+
+Create an agent by migrating from a source scope.
+
+### POST `/v1/agent-tools/create-agent`
+
+```json
+{
+  "created_by": "account-id",
+  "target_network_id": "network-id",
+  "source_scope": {
+    "network_id": "string",
+    "account_id": "string",
+    "organization_id": "string",
+    "network_category_id": "string"
+  }
+}
+```
+
+### Best Practices
+
+- **Use migration for cloning agents** — This is the fastest way to duplicate an agent across accounts or environments. Migrate from a staging source to a production target.
+- **Verify the target network is empty** — Migrating into a network with existing settings may overwrite or conflict. Use a freshly created network as the target.
+
+---
+
+## General Settings
+
+### PATCH `/v1/agent-tools/general-settings`
+
+Update agent general settings. Body contains changed fields plus scope IDs.
+
+```json
+{
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string",
+  "updated_by": "string"
+}
+```
+
+### Best Practices
+
+- **Send only changed fields** — PATCH applies partial updates. Include only the fields you want to change plus the required scope IDs. Sending the full object risks overwriting concurrent changes.
+- **Always include `updated_by`** — This field tracks who made the change. Use the account ID or email of the person/service making the update for audit purposes.
+- **Validate with `aui dvalidate` after changes** — If you're editing settings alongside CLI-managed `.aui.json` files, run validation to ensure consistency.
+
+---
+
+## Tools
+
+### Create Tool
+
+#### POST `/v1/agent-tools`
+
+```json
+{
+  "created_by": "string",
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Update Tool
+
+#### PATCH `/v1/agent-tools/{toolName}`
+
+Body contains changed fields plus scope IDs and `updated_by`.
+
+### Delete Tool
+
+#### DELETE `/v1/agent-tools/{toolName}`
+
+```json
+{
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Best Practices — Tools
+
+- **Use descriptive tool names** — Tool names are used as identifiers and referenced by rules. Use clear, snake_case names (e.g., `search_products`, `check_inventory`).
+- **Update tool references in rules** — When renaming or deleting a tool, check that no rules reference the old tool name. Orphaned references cause silent failures.
+- **Test tools with `aui chat` after creation** — Create the tool, then immediately test it in a chat session to verify it activates correctly and returns expected results.
+
+---
+
+## Parameters
+
+### Create Parameter
+
+#### POST `/v1/parameters/view`
+
+<ParamField body="code" type="string" required>
+  Parameter code identifier.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Parameter description.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Type: `string`, `numeric`, `date`, `boolean`, `enum`, `array`, `object`.
+</ParamField>
+
+<ParamField body="usage_type" type="string" required>
+  Usage: `ALL`, `INPUT`, or `OUTPUT`.
+</ParamField>
+
+<ParamField body="values" type="array">
+  Enum values (when type is `enum`).
+</ParamField>
+
+```json
+{
+  "code": "param_code",
+  "description": "string",
+  "type": "string",
+  "usage_type": "ALL",
+  "values": ["enum_val1", "enum_val2"],
+  "created_by": "string",
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Update Parameter
+
+#### PATCH `/v1/parameters/view/{code}`
+
+```json
+{
+  "updated_by": "string",
+  "description": "string",
+  "type": "string",
+  "usage_type": "string",
+  "values": [],
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Delete Parameter
+
+#### DELETE `/v1/parameters/view/{code}`
+
+```json
+{
+  "updated_by": "string",
+  "description": null,
+  "type": null,
+  "usage_type": "OUTPUT",
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Best Practices — Parameters
+
+- **Use `usage_type` to control data flow** — `INPUT` parameters are collected from users, `OUTPUT` parameters are set by the agent, and `ALL` can be both. Choose the narrowest scope that fits your use case.
+- **Define enum values exhaustively** — For `enum` type parameters, list all valid values upfront. The agent will use these for validation and suggestion generation.
+- **Check rule dependencies before deleting** — Parameters are referenced in rule conditions. Deleting a parameter that's used in active rules will break those rules silently.
+
+---
+
+## Entities
+
+### Create Entity
+
+#### POST `/v1/scope-entities/view`
+
+<ParamField body="name" type="string" required>
+  Entity name.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Entity description.
+</ParamField>
+
+<ParamField body="parameters" type="array">
+  Associated parameters.
+</ParamField>
+
+<ParamField body="sub_entities" type="array">
+  Nested sub-entities.
+</ParamField>
+
+```json
+{
+  "name": "entity_name",
+  "created_by": "string",
+  "description": "string",
+  "parameters": [],
+  "sub_entities": [],
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Update Entity
+
+#### PATCH `/v1/scope-entities/view/{name}`
+
+```json
+{
+  "updated_by": "string",
+  "description": "string",
+  "sub_entities": [],
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Delete Entity
+
+#### DELETE `/v1/scope-entities/view/{name}`
+
+```json
+{
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Best Practices — Entities
+
+- **Entities control instruction scoping** — Each entity determines which tools, rules, and instructions are active for a given interaction context. Design entity hierarchies to match your domain.
+- **Keep sub-entity nesting shallow** — Deeply nested sub-entities are harder to debug. Prefer flat structures with clear parameter associations.
+- **Name entities after domain concepts** — Use names like `product`, `order`, `customer` rather than generic names. The agent uses entity names for context understanding.
+
+---
+
+## Integrations
+
+### Create Integration
+
+#### POST `/v1/integrations/view`
+
+<ParamField body="name" type="string" required>
+  Integration name.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Integration type (e.g., `"API"`).
+</ParamField>
+
+<ParamField body="settings" type="object">
+  Integration-specific settings.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Integration description.
+</ParamField>
+
+```json
+{
+  "name": "string",
+  "type": "API",
+  "settings": {},
+  "created_by": "string",
+  "description": "string",
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Update Integration
+
+#### PATCH `/v1/integrations/view/{code}`
+
+```json
+{
+  "updated_by": "string",
+  "description": "string",
+  "settings": {},
+  "network_id": "string",
+  "account_id": "string",
+  "organization_id": "string",
+  "network_category_id": "string"
+}
+```
+
+### Delete Integration
+
+#### DELETE `/v1/integrations/view/{code}`
+
+```json
+{
+  "network_id": "string"
+}
+```
+
+### Best Practices — Integrations
+
+- **Test API credentials before creating** — Verify that the endpoint URL, auth headers, and request format work independently (e.g., via cURL) before saving as an integration.
+- **Use the API Workflow generator for REST APIs** — Instead of manually building integration settings, use the [API Workflow](/agent-builder/api-workflow) endpoint to auto-generate integrations from cURL commands.
+- **Disable before deleting** — If an integration is referenced by active tools, removing it will break those tools. Disable the integration first, verify nothing breaks, then delete.
+- **Store sensitive values in integration settings, not tool configs** — Keep API keys and secrets in the integration `settings` object, not in tool definitions. This allows rotating credentials without updating every tool.

@@ -1,0 +1,172 @@
+---
+title: "Identity & Auth"
+description: "Email availability, OTP login, and logout endpoints."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+---
+
+## Check Email Availability
+
+Check if an email address is registered in the system.
+
+### POST `/identity/user/email/check-availability`
+
+#### Request Body
+
+<ParamField body="email" type="string" required>
+  The email address to check.
+</ParamField>
+
+```bash cURL
+curl -X POST "https://api-staging.internal-aui.io/api/outer-bridge/identity/user/email/check-availability" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com"}'
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": { "isAvailableEmail": false },
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Call before OTP** — Always check availability before sending an OTP. If `isAvailableEmail` is `true`, the email is not registered and OTP will fail.
+- **Do not expose results to end users** — Avoid leaking whether an email is registered. Use generic messages like "If this email is registered, you will receive a code."
+
+---
+
+## Send OTP
+
+Send a one-time password to an email address for authentication.
+
+### POST `/identity/user/otp/email`
+
+#### Request Body
+
+<ParamField body="email" type="string" required>
+  The email address to send the OTP to.
+</ParamField>
+
+```bash cURL
+curl -X POST "https://api-staging.internal-aui.io/api/outer-bridge/identity/user/otp/email" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com"}'
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": { "email": "user@example.com" },
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Rate limit OTP requests** — Implement client-side throttling (e.g., 60-second cooldown) to prevent spamming the endpoint.
+- **OTPs expire quickly** — Codes are short-lived. Prompt the user to enter the code immediately after receiving it.
+- **Handle delivery delays** — Allow users to request a new OTP if the first one doesn't arrive within 30 seconds, but don't allow more than 3 attempts per minute.
+
+---
+
+## Login with OTP
+
+Authenticate using email and OTP code.
+
+### POST `/identity/user/login`
+
+#### Request Body
+
+<ParamField body="email" type="string" required>
+  The email address.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The OTP code received via email.
+</ParamField>
+
+<ParamField body="isOTP" type="boolean" required>
+  Must be `true` for OTP-based login.
+</ParamField>
+
+```bash cURL
+curl -X POST "https://api-staging.internal-aui.io/api/outer-bridge/identity/user/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "123456",
+    "isOTP": true
+  }'
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "token": "jwt-string",
+    "refreshToken": "refresh-token-string",
+    "user": {
+      "_id": "string",
+      "id": "string",
+      "email": "string",
+      "status": "string"
+    },
+    "roles": [],
+    "organizationId": "string"
+  },
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Store both tokens** — Persist `token` and `refreshToken` securely. Use the refresh token to obtain a new JWT when the current one expires.
+- **Extract `organizationId`** — The login response includes the user's default organization. Use it to set the `organization-id` header for subsequent requests.
+- **Handle invalid OTP gracefully** — After 3 failed attempts, prompt the user to request a new OTP rather than retrying the same code.
+- **Never log tokens** — Avoid writing JWTs or refresh tokens to application logs.
+
+---
+
+## Logout
+
+Invalidate the current session.
+
+### POST `/identity/user/logout`
+
+#### Request Body
+
+Empty object `{}`.
+
+```bash cURL
+curl -X POST "https://api-staging.internal-aui.io/api/outer-bridge/identity/user/logout" \
+  -H "Content-Type: application/json" \
+  -H "auth-token: your-jwt-token" \
+  -d '{}'
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Always call logout on session end** — Don't rely on token expiry alone. Explicitly invalidate the session to prevent token reuse.
+- **Clear local state** — After logout, delete the stored JWT, refresh token, and any cached session data (account ID, organization ID, etc.).

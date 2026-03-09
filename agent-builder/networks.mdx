@@ -1,0 +1,277 @@
+---
+title: "Networks (Agents)"
+description: "List, create, and retrieve agents. Manage network API keys."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+---
+
+## List Networks
+
+Returns all networks (agents) for an organization and account.
+
+### GET `/network/v1/network`
+
+#### Query Parameters
+
+<ParamField query="organization" type="string" required>
+  Organization ID.
+</ParamField>
+
+<ParamField query="account" type="string" required>
+  Account ID.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/network?organization=org-id&account=account-id" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": [
+    {
+      "_id": "string",
+      "id": "string",
+      "name": "string",
+      "niceName": "string",
+      "status": "ACTIVE",
+      "category": { "_id": "string", "name": "string" },
+      "account": "string",
+      "organization": "string",
+      "objective": "string",
+      "createdBy": "string",
+      "createdAt": "string",
+      "updatedAt": "string"
+    }
+  ],
+  "message": "string",
+  "statusCode": 200
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Filter by `status: ACTIVE` client-side** — The response includes all networks regardless of status. Filter to active ones before displaying to users.
+- **Use `objective` for context** — The `objective` field describes the agent's purpose. Display it alongside the agent name to help users pick the right one.
+- **Pass both `organization` and `account`** — Both query params are required. Omitting either will return unexpected results or errors.
+
+---
+
+## Create Network
+
+Create a new network (agent).
+
+### POST `/network/v1/network`
+
+#### Request Body
+
+<ParamField body="name" type="string" required>
+  Agent name.
+</ParamField>
+
+<ParamField body="category" type="string" required>
+  Category ID.
+</ParamField>
+
+<ParamField body="objective" type="string" required>
+  Agent purpose description.
+</ParamField>
+
+<ParamField body="account" type="string" required>
+  Account ID.
+</ParamField>
+
+<ParamField body="organization" type="string" required>
+  Organization ID.
+</ParamField>
+
+<ParamField body="status" type="string" required>
+  Status. Use `"ACTIVE"`.
+</ParamField>
+
+```bash cURL
+curl -X POST "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/network" \
+  -H "Content-Type: application/json" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores" \
+  -d '{
+    "name": "my-agent",
+    "category": "category-id",
+    "objective": "Agent purpose description",
+    "account": "account-id",
+    "organization": "org-id",
+    "status": "ACTIVE"
+  }'
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "network": { "_id": "string", "id": "string", "name": "string" },
+    "seed": { "_id": "string", "id": "string" },
+    "category": { "_id": "string", "name": "string" }
+  },
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Save the `seed` ID** — The response includes a `seed` object. Store the seed ID — it's required for knowledge base operations and some agent settings endpoints.
+- **Write a clear `objective`** — The objective guides how the neuro-symbolic engine interprets user messages. Be specific about the agent's purpose and domain.
+- **Use kebab-case for `name`** — Agent names are used as identifiers in the CLI and file system. Use lowercase kebab-case (e.g., `product-advisor`).
+- **Create in staging first** — Always create and test agents in the staging environment before promoting to production.
+
+---
+
+## Get Network
+
+Retrieve a single network by ID.
+
+### GET `/network/v1/network/{networkId}`
+
+#### Path Parameters
+
+<ParamField path="networkId" type="string" required>
+  The network ID.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/network/network-id-here" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "_id": "string",
+    "id": "string",
+    "name": "string",
+    "niceName": "string",
+    "status": "ACTIVE",
+    "category": { "_id": "string", "name": "string" },
+    "account": "string",
+    "organization": "string",
+    "objective": "string",
+    "createdBy": "string",
+    "createdAt": "string",
+    "updatedAt": "string"
+  }
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Use to confirm agent state** — Call this before making configuration changes to verify the agent is active and belongs to the expected account/organization.
+
+---
+
+## List API Keys
+
+List all API keys for a network.
+
+### GET `/network/v1/network/{networkId}/api-key`
+
+#### Path Parameters
+
+<ParamField path="networkId" type="string" required>
+  The network ID.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/network/network-id/api-key" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": [
+    { "_id": "string", "id": "string", "name": "string", "status": "ACTIVE" }
+  ],
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Check for active keys** — Filter the response by `status: ACTIVE`. Inactive keys cannot be used for authentication.
+- **Use key names to identify purpose** — When creating keys, use descriptive names (e.g., `production-widget`, `staging-cli`) to track which key is used where.
+
+---
+
+## Reveal API Key
+
+Get the actual API key value.
+
+### GET `/network/v1/network/{networkId}/api-key/{apiKeyId}/reveal`
+
+#### Path Parameters
+
+<ParamField path="networkId" type="string" required>
+  The network ID.
+</ParamField>
+
+<ParamField path="apiKeyId" type="string" required>
+  The API key ID.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/network/network-id/api-key/key-id/reveal" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": { "key": "actual-api-key-value" },
+  "message": "string"
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Store securely after reveal** — Save the key to a secure location (environment variable, secrets manager) immediately after revealing. Avoid calling this endpoint repeatedly.
+- **Audit reveal calls** — Each reveal call may be logged for security. Minimize usage and prefer storing the key once rather than revealing it on every deploy.
+- **Never log the response** — The response contains the plaintext key. Ensure it is not written to logs, monitoring tools, or error tracking services.

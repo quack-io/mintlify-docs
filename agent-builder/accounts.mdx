@@ -1,0 +1,181 @@
+---
+title: "Accounts"
+description: "List, create, and retrieve accounts."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+---
+
+## List Accounts
+
+Returns a paginated list of accounts in the current organization.
+
+### GET `/network/v1/account`
+
+#### Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+  Results per page.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/account?page=1&limit=50" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "docs": [
+      {
+        "_id": "string",
+        "id": "string",
+        "name": "string",
+        "niceName": "string",
+        "status": "ACTIVE",
+        "organization": "string",
+        "createdBy": "string",
+        "createdAt": "string",
+        "updatedAt": "string"
+      }
+    ],
+    "totalDocs": 5,
+    "limit": 50,
+    "totalPages": 1,
+    "page": 1
+  },
+  "message": "string",
+  "statusCode": 200
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Set `organization-id` header first** — Account listings are scoped to the organization in the header. Ensure you've selected the correct organization before listing accounts.
+- **Cache account lists per org** — Accounts are relatively stable. Cache per organization and refresh when switching orgs or on user request.
+
+---
+
+## Create Account
+
+Create a new account within an organization.
+
+### POST `/network/v1/account`
+
+#### Request Body
+
+<ParamField body="name" type="string" required>
+  Account name.
+</ParamField>
+
+<ParamField body="status" type="string" required>
+  Account status. Use `"ACTIVE"`.
+</ParamField>
+
+<ParamField body="organization" type="string" required>
+  Organization ID to create the account under.
+</ParamField>
+
+```bash cURL
+curl -X POST "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/account" \
+  -H "Content-Type: application/json" \
+  -H "auth-token: your-jwt-token" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores" \
+  -d '{
+    "name": "my-project",
+    "status": "ACTIVE",
+    "organization": "your-org-id"
+  }'
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "_id": "string",
+    "id": "string",
+    "name": "my-project",
+    "niceName": "My Project",
+    "status": "ACTIVE",
+    "organization": "string",
+    "createdBy": "string",
+    "createdAt": "string",
+    "updatedAt": "string"
+  },
+  "message": "string",
+  "statusCode": 200
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Use kebab-case for `name`** — Account names are used as identifiers. Use lowercase kebab-case (e.g., `my-project`) for consistency. The API auto-generates a `niceName` for display.
+- **One account per project** — Use accounts to separate different projects or environments within an organization. Avoid putting unrelated agents in the same account.
+- **Match `organization` to header** — The `organization` field in the body must match the `organization-id` header. Mismatches will result in authorization errors.
+
+---
+
+## Get Account
+
+Retrieve a single account by ID.
+
+### GET `/network/v1/account/{accountId}`
+
+#### Path Parameters
+
+<ParamField path="accountId" type="string" required>
+  The account ID.
+</ParamField>
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/account/account-id-here" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+<ResponseExample>
+```json 200
+{
+  "status": true,
+  "data": {
+    "_id": "string",
+    "id": "string",
+    "name": "string",
+    "niceName": "string",
+    "status": "ACTIVE",
+    "organization": "string",
+    "createdBy": "string",
+    "createdAt": "string",
+    "updatedAt": "string"
+  }
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Use to validate context after switching** — Call this after switching accounts to confirm the account exists, is active, and belongs to the expected organization.

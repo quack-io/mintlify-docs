@@ -1,109 +1,78 @@
 ---
 title: "Agent Builder API"
 sidebarTitle: "Overview"
-description: "Programmatically create, configure, and manage AI agents with deterministic business logic."
+description: "Complete API reference for creating, configuring, and managing AUI agents."
 ---
 
 <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
   <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
 </div>
 
-The Agent Builder API will let you programmatically create and configure AI agents that combine LLM reasoning with rule-based control. Define what your agent knows, what it can do, and exactly how it should behave — all through a REST API.
-
-<Note>
-  The Agent Builder API is currently in development. The architecture and core concepts below reflect the planned design. Full API reference and endpoints will be published at launch.
-</Note>
+The Agent Builder API lets you programmatically create and configure AI agents that combine LLM reasoning with rule-based control. Define what your agent knows, what it can do, and exactly how it should behave — all through a REST API.
 
 ---
 
-## Architecture
+## Environments & Base URLs
 
-An AUI agent is composed of five building blocks:
+| Environment | Outer Bridge API | Agent Settings | KBM (RAG) | API Workflow |
+| --- | --- | --- | --- | --- |
+| Staging | `https://api-staging.internal-aui.io/api/outer-bridge` | `https://api-staging.internal-aui.io/v3-1/agent-settings` | `https://api-staging.internal-aui.io/knowledge-base-manager/v1` | `https://api-staging.internal-aui.io/api/api-workflow` |
+| Production | Same as staging | Same as staging | Same as staging | Same as staging |
 
-```
-┌─────────────────────────────────────────────┐
-│                   AGENT                      │
-│  code · objective · guardrails · tone        │
-│                                              │
-│  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
-│  │  Tools    │  │  Rules   │  │ Parameters│  │
-│  │ (API,RAG, │  │ (when/   │  │ (input/   │  │
-│  │  MCP,...) │  │  then)   │  │  output)  │  │
-│  └──────────┘  └──────────┘  └───────────┘  │
-│                                              │
-│  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ Knowledge    │  │ Workflows            │  │
-│  │ Bases        │  │ (orchestrated tools) │  │
-│  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────┘
-```
+### URL Structure & Routing
 
-| Component | Purpose |
-| --- | --- |
-| **Agent** | Top-level entity. Defines identity, objective, guardrails, and tone of voice. |
-| **Parameters** | Typed variables the agent collects or receives. Used in rules and tool calls. |
-| **Tools** | Integrations the agent invokes — REST APIs, knowledge bases, MCP servers, structured data. |
-| **Rules** | Deterministic when/then logic evaluated before every response. |
-| **Knowledge Bases** | Document stores for grounded, accurate answers. |
-| **Workflows** | Orchestrated sequences of tool executions with conditional branching. |
+The API is organized across four services, each with its own base URL and routing conventions:
+
+| Service | URL Prefix | Route Pattern | Description |
+| --- | --- | --- | --- |
+| **Outer Bridge** | `/api/outer-bridge` | `/identity/*`, `/network/v1/*` | Authentication, organizations, accounts, networks, API keys. All entity management routes are under `/network/v1/`. |
+| **Agent Settings V2** | `/v3-1/agent-settings` | `/v1/agent-tools/*`, `/v1/parameters/*`, `/v1/integrations/*`, `/v1/scope-entities/*` | Agent configuration CRUD. All routes are versioned under `/v1/`. |
+| **Knowledge Base Manager** | `/knowledge-base-manager/v1` | `/knowledge-bases`, `/bulk/*` | RAG operations. Single resources under `/knowledge-bases`, batch operations under `/bulk/`. |
+| **API Workflow** | `/api/api-workflow` | `/v1/api-integration/*` | Integration generation. |
+
+### Best Practices — URLs & Routing
+
+- **Always use the full base URL** — Each service has a distinct base path. Don't assume all endpoints share the same prefix. For example, `/identity/user/login` goes through Outer Bridge while `/v1/agent-tools` goes through Agent Settings.
+- **Note the version in the URL** — Agent Settings uses `/v3-1/agent-settings/v1/` (service version `v3-1`, API version `v1`). Don't confuse the two. The outer `v3-1` is the service deployment version; the inner `v1` is the API contract version.
+- **Route naming conventions** — Outer Bridge uses kebab-case for paths (`/api-key`, `/check-availability`). Agent Settings uses kebab-case (`/agent-tools`, `/general-settings`). Knowledge Base Manager uses kebab-case (`/knowledge-bases`). Stay consistent with these conventions when constructing URLs.
+- **Path parameters use IDs, not names** — Routes like `/network/v1/network/{networkId}` and `/v1/agent-tools/{toolName}` look similar but use different identifiers. Networks use MongoDB ObjectIds; tools and parameters use their `code`/`name` string. Check the endpoint docs for which identifier to use.
+- **Query parameters carry scope** — Agent Settings endpoints require `network_id`, `account_id`, `organization_id`, and `network_category_id` as query parameters, not path segments. Always include all four to avoid scope resolution errors.
+- **Use staging URLs for development** — Both staging and production currently point to the same infrastructure, but this will change. Build your integration against the staging URL and switch to production only for release.
+- **`/bulk/*` routes are for batch operations** — Knowledge Base Manager separates single-resource routes (`/knowledge-bases`) from batch routes (`/bulk/files`, `/bulk/websites`, `/bulk/export`, `/bulk/import`). Use bulk routes for multi-file operations.
 
 ---
 
-## Neuro-Symbolic Engine
-
-AUI agents are not pure LLM wrappers. The engine evaluates two layers on every turn:
-
-1. **Symbolic layer** — Rules are evaluated first. Condition groups (`all`, `any`, `not`) check parameter values, conversation state, and metadata. Matching rules fire deterministic actions: return text, call an API, ask a question, or block the response.
-
-2. **Neural layer** — The LLM handles everything rules don't cover: understanding intent, generating language, summarizing documents, and deciding which tools to invoke.
-
-<Info>
-  Rules always take priority over LLM decisions. If a rule matches, its action executes — the LLM does not override it.
-</Info>
-
----
-
-## Planned Capabilities
+## API Sections
 
 <CardGroup cols={2}>
-  <Card title="Agent CRUD" icon="robot">
-    Create, read, update, and delete agents. Configure objective, guardrails, tone, and scope.
+  <Card title="Authentication" icon="key" href="/agent-builder/authentication">
+    Authentication headers for all API services.
   </Card>
-  <Card title="Tools & Integrations" icon="plug">
-    6 integration types: API, RAG, MCP, Internal Context, Structured, Gen AI. Full request/response schema configuration.
+  <Card title="Identity & Auth" icon="user" href="/agent-builder/identity">
+    Email check, OTP login, logout.
   </Card>
-  <Card title="Rules Engine" icon="scale-balanced">
-    Declarative when/then rules with condition groups. Actions include text responses, API calls, tool activation, and blocking.
+  <Card title="Organizations" icon="building" href="/agent-builder/organizations">
+    List and retrieve organizations.
   </Card>
-  <Card title="Parameters" icon="sliders">
-    Typed parameters (string, numeric, date, boolean, enum, array, object) with input/output usage control.
+  <Card title="Accounts" icon="folder" href="/agent-builder/accounts">
+    List, create, and retrieve accounts.
   </Card>
-  <Card title="Knowledge Bases" icon="book">
-    Upload files (PDF, DOCX, CSV, etc.), connect websites, and query with RAG for grounded answers.
+  <Card title="Networks (Agents)" icon="robot" href="/agent-builder/networks">
+    List, create, and retrieve agents. Manage API keys.
   </Card>
-  <Card title="Workflows" icon="diagram-project">
-    Multi-step tool orchestration with conditional branching, retry strategies, and timeout configuration.
+  <Card title="Agent Settings — Read" icon="eye" href="/agent-builder/settings-read">
+    Fetch general settings, parameters, entities, integrations, tools, and rules.
+  </Card>
+  <Card title="Agent Settings — Write" icon="pen" href="/agent-builder/settings-write">
+    Create, update, and delete agent configuration.
+  </Card>
+  <Card title="Knowledge Bases (RAG)" icon="book" href="/agent-builder/knowledge-bases">
+    Manage knowledge bases, upload files, scrape websites, export/import.
+  </Card>
+  <Card title="API Workflow" icon="wand-magic-sparkles" href="/agent-builder/api-workflow">
+    Generate integrations from cURL commands.
+  </Card>
+  <Card title="Local Serve API" icon="laptop-code" href="/agent-builder/local-serve">
+    Routes exposed by `aui serve` for local development.
   </Card>
 </CardGroup>
-
----
-
-## What's Coming
-
-<Steps>
-  <Step title="Mid April 2026 — Public Beta">
-    Agent CRUD endpoints, parameter management, tool configuration, and rule engine API.
-  </Step>
-  <Step title="May 2026 — Knowledge Base API">
-    File upload, website crawling, and RAG query endpoints.
-  </Step>
-  <Step title="June 2026 — Workflows & Testing">
-    Workflow orchestration API and automated testing suite endpoints.
-  </Step>
-</Steps>
-
----
-
-## Get Notified
-
-Want early access? Reach out through the [AUI Console](https://console.aui.io) or join the [Community](https://discord.aui.io) to stay updated on the launch.

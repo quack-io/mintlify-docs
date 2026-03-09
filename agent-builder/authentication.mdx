@@ -1,0 +1,87 @@
+---
+title: "Authentication"
+description: "Authentication headers for all Agent Builder API services."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+The Agent Builder API uses different authentication headers depending on the service you're calling.
+
+---
+
+## Outer Bridge (Main API)
+
+| Header | Description |
+| --- | --- |
+| `auth-token` | JWT from login |
+| `account-id` | Current account ID |
+| `organization-id` | Current organization ID |
+| `x-aui-client` | Always `"AUI"` |
+| `x-aui-environment` | `"staging"` or `"production"` |
+| `x-aui-origin` | Always `"stores"` |
+
+```bash
+curl -X GET "https://api-staging.internal-aui.io/api/outer-bridge/network/v1/network" \
+  -H "auth-token: your-jwt-token" \
+  -H "account-id: your-account-id" \
+  -H "organization-id: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-aui-origin: stores"
+```
+
+### Best Practices
+
+- **Store JWTs securely** — Use environment variables or a secrets manager. Never hardcode tokens in source code.
+- **Refresh before expiry** — JWTs have a limited lifetime. Use the `refreshToken` from the login response to obtain a new token before the current one expires.
+- **Always set `x-aui-environment`** — Explicitly pass `staging` or `production` to avoid accidental cross-environment requests. Default to `staging` during development.
+- **Validate `account-id` and `organization-id`** — Mismatched IDs will return authorization errors. Confirm the correct pair with a `GET /network/v1/account` call before making other requests.
+
+---
+
+## Agent Settings V2
+
+| Header | Description |
+| --- | --- |
+| `Authorization` | `Bearer <JWT>` (primary) |
+| `x-api-key` | Fallback API key (when Bearer fails) |
+| `X-Organization-ID` | Organization ID |
+| `x-aui-client` | Always `"AUI"` |
+| `x-aui-environment` | `"staging"` or `"production"` |
+| `x-trace-id` | Random UUID per request |
+
+```bash
+curl -X GET "https://api-staging.internal-aui.io/v3-1/agent-settings/v1/agent-tools" \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Organization-ID: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-trace-id: 550e8400-e29b-41d4-a716-446655440000"
+```
+
+### Best Practices
+
+- **Generate a unique `x-trace-id` per request** — Use UUID v4. This enables end-to-end tracing and makes debugging significantly easier when working with support.
+- **Prefer Bearer over `x-api-key`** — The `x-api-key` fallback is intended for service-to-service calls where JWT refresh is impractical. For interactive use, always use `Authorization: Bearer`.
+- **Include `x-api-key` as a fallback** — If your integration runs long-lived background jobs, include both headers. The API will try Bearer first and fall back to the API key if the JWT has expired.
+
+---
+
+## Knowledge Base Manager
+
+| Header | Description |
+| --- | --- |
+| `x-api-key` | KBM-specific API key |
+
+```bash
+curl -X GET "https://api-staging.internal-aui.io/knowledge-base-manager/v1/knowledge-bases" \
+  -H "x-api-key: your-kbm-api-key"
+```
+
+### Best Practices
+
+- **Use a dedicated KBM key** — The KBM API key is separate from the Outer Bridge JWT. Do not reuse the same credentials across services.
+- **Scope keys per environment** — Use different KBM keys for staging and production to prevent accidental data contamination.
+- **Rotate keys periodically** — Treat the KBM key like any other secret. Rotate it on a regular cadence and immediately if compromised.

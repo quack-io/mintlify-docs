@@ -1,0 +1,112 @@
+---
+title: "API Workflow"
+description: "Generate integrations from cURL commands."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+**Base URL:** `https://api-staging.internal-aui.io/api/api-workflow`
+
+**Auth:** `api-key` header
+
+---
+
+## Generate Integration from cURL
+
+Automatically generate an integration configuration from a cURL command.
+
+### POST `/v1/api-integration/generate`
+
+#### Headers
+
+| Header | Value |
+| --- | --- |
+| `Content-Type` | `application/json` |
+| `api-key` | API workflow key |
+
+#### Request Body
+
+<ParamField body="curl" type="string" required>
+  The cURL command to parse and generate an integration from.
+</ParamField>
+
+<ParamField body="scope" type="object" required>
+  Scope identifiers.
+
+  <Expandable title="scope properties">
+    <ParamField body="scope.networkId" type="string">
+      Network ID.
+    </ParamField>
+    <ParamField body="scope.accountId" type="string">
+      Account ID.
+    </ParamField>
+    <ParamField body="scope.seedId" type="string">
+      Seed ID.
+    </ParamField>
+    <ParamField body="scope.networkCategoryId" type="string">
+      Network category ID.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="variables" type="array">
+  Variables to substitute in the cURL command.
+</ParamField>
+
+<ParamField body="tool" type="object" required>
+  Tool metadata.
+
+  <Expandable title="tool properties">
+    <ParamField body="tool.name" type="string" required>
+      Tool name.
+    </ParamField>
+    <ParamField body="tool.goal" type="string" required>
+      Description of what this tool does.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="createdBy" type="string" required>
+  Email of the user creating the integration.
+</ParamField>
+
+```bash cURL
+curl -X POST "https://api-staging.internal-aui.io/api/api-workflow/v1/api-integration/generate" \
+  -H "Content-Type: application/json" \
+  -H "api-key: your-api-workflow-key" \
+  -d '{
+    "curl": "curl -X GET https://api.example.com/data -H '\''Authorization: Bearer token'\''",
+    "scope": {
+      "networkId": "string",
+      "accountId": "string",
+      "seedId": "string",
+      "networkCategoryId": "string"
+    },
+    "variables": [],
+    "tool": {
+      "name": "tool_name",
+      "goal": "What this tool does"
+    },
+    "createdBy": "user@example.com"
+  }'
+```
+
+<ResponseExample>
+```json 200
+{
+  "data": {
+    "integration": {}
+  }
+}
+```
+</ResponseExample>
+
+### Best Practices
+
+- **Use complete cURL commands** — Include all headers, query parameters, and request body in the cURL string. The generator parses the full command to build the integration schema.
+- **Write a clear `tool.goal`** — The goal is used by the neuro-symbolic engine to decide when to activate the tool. Be specific: "Fetch product details by SKU from the inventory API" is better than "Get data."
+- **Use `variables` for dynamic values** — Extract API keys, user IDs, and other dynamic values into the `variables` array rather than hardcoding them in the cURL string. This makes the integration reusable.
+- **Review generated integration before saving** — The generator creates a best-effort integration config. Always review the output and adjust request/response mappings before pushing it to agent settings.
+- **Prefer this over manual integration creation** — The generator handles header parsing, body schema extraction, and URL decomposition automatically. It's faster and less error-prone than building `settings` objects by hand.

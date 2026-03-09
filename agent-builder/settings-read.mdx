@@ -1,0 +1,158 @@
+---
+title: "Agent Settings — Read"
+sidebarTitle: "Settings (Read)"
+description: "Fetch agent configuration: general settings, parameters, entities, integrations, tools, and rules."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+**Base URL:** `https://api-staging.internal-aui.io/v3-1/agent-settings/v1/`
+
+All read endpoints use **GET** with these common query parameters:
+
+| Param | Description |
+| --- | --- |
+| `network_id` | Network/Agent ID |
+| `account_id` | Account ID |
+| `organization_id` | Organization ID |
+| `network_category_id` | Network category ID |
+
+---
+
+## General Settings
+
+### GET `/v1/agent-tools/general-settings`
+
+Additional params: `enable_reduce_by_scope=true`
+
+Fallback paths: `general-settings/view`, `general-settings`
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/v3-1/agent-settings/v1/agent-tools/general-settings?network_id=net-id&account_id=acc-id&organization_id=org-id&network_category_id=cat-id&enable_reduce_by_scope=true" \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Organization-ID: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-trace-id: $(uuidgen)"
+```
+
+### Best Practices
+
+- **Always set `enable_reduce_by_scope=true`** — This returns only settings relevant to the specified network scope. Without it, you may receive settings from parent scopes that don't apply.
+- **Use fallback paths for compatibility** — If the primary path returns a 404, try `general-settings/view` then `general-settings`. This handles API version differences across environments.
+- **Snapshot before editing** — Fetch general settings before making PATCH calls. Compare the snapshot to your intended changes to avoid overwriting other users' edits.
+
+---
+
+## Parameters (Export)
+
+### GET `/v1/parameters/view/export`
+
+Additional params: `page=1`, `size=100`, `sort_order=1`
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/v3-1/agent-settings/v1/parameters/view/export?network_id=net-id&account_id=acc-id&organization_id=org-id&network_category_id=cat-id&page=1&size=100&sort_order=1" \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Organization-ID: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-trace-id: $(uuidgen)"
+```
+
+### Best Practices
+
+- **Paginate for large parameter sets** — Use `page` and `size` params. Start with `size=100` and paginate if `totalDocs` exceeds the page size.
+- **Export before bulk changes** — Use the export endpoint to back up parameter definitions before running batch updates via the CLI or write API.
+
+---
+
+## Entities (Export)
+
+### GET `/v1/scope-entities/view/export`
+
+Additional params: `page=1`, `size=100`, `sort_order=1`
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/v3-1/agent-settings/v1/scope-entities/view/export?network_id=net-id&account_id=acc-id&organization_id=org-id&network_category_id=cat-id&page=1&size=100&sort_order=1" \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Organization-ID: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-trace-id: $(uuidgen)"
+```
+
+### Best Practices
+
+- **Entities define scope context** — Entities determine which rules and instructions apply to each interaction. Always review entity exports to understand scope behavior before modifying rules.
+- **Check sub-entity relationships** — Entities can nest. When exporting, verify that `sub_entities` references are intact and point to valid parent entities.
+
+---
+
+## Integrations
+
+### GET `/v1/integrations/view`
+
+Additional params: `enable_reduce_by_scope=true`, `include_invisible=true`, `include_global_scope=true`
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/v3-1/agent-settings/v1/integrations/view?network_id=net-id&account_id=acc-id&organization_id=org-id&network_category_id=cat-id&enable_reduce_by_scope=true&include_invisible=true&include_global_scope=true" \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Organization-ID: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-trace-id: $(uuidgen)"
+```
+
+### Best Practices
+
+- **Include `include_invisible=true` for full audit** — Some integrations are hidden from the UI but still active. Include this flag to see the complete picture.
+- **Include `include_global_scope=true` to see inherited integrations** — Integrations can be defined at the organization or account level. This flag ensures you see all integrations that apply to the current network, not just network-level ones.
+- **Validate integration credentials** — After fetching integrations, verify that API keys and endpoints in `settings` are still valid. Stale credentials cause silent tool failures at runtime.
+
+---
+
+## Tools
+
+### GET `/v1/agent-tools`
+
+Additional params: `enable_reduce_by_scope=true`
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/v3-1/agent-settings/v1/agent-tools?network_id=net-id&account_id=acc-id&organization_id=org-id&network_category_id=cat-id&enable_reduce_by_scope=true" \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Organization-ID: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-trace-id: $(uuidgen)"
+```
+
+### Best Practices
+
+- **Tools are the agent's capabilities** — Each tool defines an action the agent can take (API call, RAG lookup, etc.). Fetch tools to understand what the agent can do before modifying its behavior.
+- **Check tool-integration references** — Tools reference integrations by code. Ensure the referenced integration exists and is active before deploying a tool to production.
+- **Use `enable_reduce_by_scope=true`** — This filters tools to the current network scope, excluding inherited tools from parent scopes that may not be relevant.
+
+---
+
+## Rules
+
+### GET `/v1/agent-tools/rules`
+
+Additional params: `enable_reduce_by_scope=true`
+
+```bash cURL
+curl "https://api-staging.internal-aui.io/v3-1/agent-settings/v1/agent-tools/rules?network_id=net-id&account_id=acc-id&organization_id=org-id&network_category_id=cat-id&enable_reduce_by_scope=true" \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Organization-ID: your-org-id" \
+  -H "x-aui-client: AUI" \
+  -H "x-aui-environment: staging" \
+  -H "x-trace-id: $(uuidgen)"
+```
+
+### Best Practices
+
+- **Rules are evaluated before the LLM** — The symbolic layer processes rules first on every turn. Understand the full rule set before modifying individual rules to avoid conflicts.
+- **Review condition group logic carefully** — Rules use `all`, `any`, and `not` condition groups. A single misconfigured condition can cause rules to fire unexpectedly or not at all.
+- **Test rules in staging** — Always validate rule changes in the staging environment using `aui chat` before pushing to production.

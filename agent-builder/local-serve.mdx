@@ -1,0 +1,55 @@
+---
+title: "Local Serve API"
+sidebarTitle: "Local Serve"
+description: "Routes exposed by `aui serve` for local development and testing."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+These routes are exposed by `aui serve` on `localhost`. They proxy to the backend APIs and provide a local development interface.
+
+---
+
+## Routes
+
+| Method | Route | Backend Call | Description |
+| --- | --- | --- | --- |
+| `GET` | `/api/session` | — | Current session info |
+| `GET` | `/api/organizations` | `organizations.listMy()` | List organizations |
+| `GET` | `/api/accounts` | `accounts.list()` | List accounts |
+| `GET` | `/api/agents` | `networks.list()` | List active agents |
+| `POST` | `/api/switch/organization` | `organizations.get(id)` | Switch organization |
+| `POST` | `/api/switch/account` | `accounts.get(id)` | Switch account |
+| `POST` | `/api/switch/agent` | `networks.get(id)` | Switch agent |
+| `POST` | `/api/chat/task` | `networkApiKeys` + Apollo SDK | Create chat task |
+| `POST` | `/api/chat/message` | Apollo SDK `sendMessage()` | Send chat message |
+
+---
+
+## Usage
+
+Start the local server:
+
+```bash
+aui serve
+```
+
+This opens a web-based playground on `localhost` where you can:
+
+- Switch between organizations, accounts, and agents
+- Chat with agents in real time
+- Test tool activations and rule matching
+
+All requests proxy through the authenticated CLI session — no additional API keys needed.
+
+---
+
+## Best Practices
+
+- **Use for rapid prototyping** — `aui serve` is the fastest way to test agent behavior without writing client code. Use it during development to iterate on tools, rules, and knowledge bases.
+- **Test context switching** — Use the switch endpoints to verify your agent behaves correctly across different organizations, accounts, and configurations.
+- **Do not expose to the network** — The local serve API has no authentication beyond the CLI session. Never expose it on `0.0.0.0` or forward the port publicly.
+- **Use alongside `aui chat`** — `aui serve` provides a visual web interface; `aui chat` provides a terminal interface. Use whichever fits your workflow. Both hit the same backend APIs.
+- **Check `/api/session` first** — Before making any calls, verify the session is active and points to the correct organization/account/agent. Stale sessions cause confusing errors.
