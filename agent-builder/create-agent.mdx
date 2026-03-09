@@ -1,0 +1,529 @@
+---
+title: "Create an Agent"
+sidebarTitle: "Agents"
+description: "Create, configure, and manage AI agents with the Agent Builder API."
+---
+
+## Create an agent
+
+<ParamField body="code" type="string" required>
+  Unique identifier for the agent. Must be kebab-case (e.g., `customer-support`).
+</ParamField>
+
+<ParamField body="description" type="string">
+  Human-readable description of the agent's purpose.
+</ParamField>
+
+<ParamField body="objective" type="string">
+  The agent's primary goal. Guides LLM behavior when no rule matches.
+</ParamField>
+
+<ParamField body="guardrails" type="string[]">
+  List of constraints the agent must follow. Each guardrail is a plain-language instruction.
+</ParamField>
+
+<ParamField body="tone_of_voice" type="string">
+  Describes how the agent should communicate (e.g., `"Professional and concise"`).
+</ParamField>
+
+<ParamField body="language" type="string">
+  Primary language for responses (e.g., `"en"`, `"es"`, `"fr"`).
+</ParamField>
+
+<ParamField body="scope" type="string">
+  Visibility scope. One of `organization`, `account`, or `network`.
+</ParamField>
+
+<CodeGroup>
+
+```typescript Node.js
+import { AUI } from "@aui.io/sdk";
+
+const aui = new AUI({
+  apiKey: "aui_sk_live_...",
+  accountId: "acc_01H...",
+  organizationId: "org_01H...",
+});
+
+const agent = await aui.agents.create({
+  code: "order-support",
+  description: "Handles order inquiries, returns, and shipping questions",
+  objective: "Resolve customer order issues quickly and accurately",
+  guardrails: [
+    "Never share internal order costs or supplier information",
+    "Always verify order ID before making changes",
+    "Escalate to a human if the customer asks more than twice",
+  ],
+  tone_of_voice: "Friendly, professional, and concise",
+  language: "en",
+  scope: "organization",
+});
+
+console.log(agent.code);
+// "order-support"
+```
+
+```python Python
+from aui_sdk import AUI
+
+aui = AUI(
+    api_key="aui_sk_live_...",
+    account_id="acc_01H...",
+    organization_id="org_01H...",
+)
+
+agent = aui.agents.create(
+    code="order-support",
+    description="Handles order inquiries, returns, and shipping questions",
+    objective="Resolve customer order issues quickly and accurately",
+    guardrails=[
+        "Never share internal order costs or supplier information",
+        "Always verify order ID before making changes",
+        "Escalate to a human if the customer asks more than twice",
+    ],
+    tone_of_voice="Friendly, professional, and concise",
+    language="en",
+    scope="organization",
+)
+
+print(agent.code)
+# "order-support"
+```
+
+```bash cURL
+curl -X POST https://api.aui.io/v1/agents \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "order-support",
+    "description": "Handles order inquiries, returns, and shipping questions",
+    "objective": "Resolve customer order issues quickly and accurately",
+    "guardrails": [
+      "Never share internal order costs or supplier information",
+      "Always verify order ID before making changes",
+      "Escalate to a human if the customer asks more than twice"
+    ],
+    "tone_of_voice": "Friendly, professional, and concise",
+    "language": "en",
+    "scope": "organization"
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 201 Created
+{
+  "code": "order-support",
+  "version": 1,
+  "description": "Handles order inquiries, returns, and shipping questions",
+  "objective": "Resolve customer order issues quickly and accurately",
+  "guardrails": [
+    "Never share internal order costs or supplier information",
+    "Always verify order ID before making changes",
+    "Escalate to a human if the customer asks more than twice"
+  ],
+  "tone_of_voice": "Friendly, professional, and concise",
+  "language": "en",
+  "scope": "organization",
+  "context": null,
+  "general_settings": {},
+  "created_at": "2026-03-09T10:00:00Z",
+  "updated_at": "2026-03-09T10:00:00Z"
+}
+```
+
+</ResponseExample>
+
+---
+
+## List agents
+
+Retrieve all agents with pagination.
+
+<ParamField query="page" type="integer" default="1">
+  Page number.
+</ParamField>
+
+<ParamField query="size" type="integer" default="20">
+  Items per page. Maximum `100`.
+</ParamField>
+
+<ParamField query="scope" type="string">
+  Filter by scope: `organization`, `account`, or `network`.
+</ParamField>
+
+<CodeGroup>
+
+```typescript Node.js
+const agents = await aui.agents.list({ page: 1, size: 10 });
+
+console.log(agents.total);
+// 3
+console.log(agents.items[0].code);
+// "order-support"
+```
+
+```python Python
+agents = aui.agents.list(page=1, size=10)
+
+print(agents.total)
+# 3
+print(agents.items[0].code)
+# "order-support"
+```
+
+```bash cURL
+curl "https://api.aui.io/v1/agents?page=1&size=10" \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..."
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 200 OK
+{
+  "items": [
+    {
+      "code": "order-support",
+      "version": 1,
+      "description": "Handles order inquiries, returns, and shipping questions",
+      "scope": "organization",
+      "created_at": "2026-03-09T10:00:00Z",
+      "updated_at": "2026-03-09T10:00:00Z"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "size": 10,
+  "pages": 1,
+  "sort_by": "created_at",
+  "sort_order": "desc"
+}
+```
+
+</ResponseExample>
+
+---
+
+## Get an agent
+
+Retrieve a single agent by its code.
+
+<CodeGroup>
+
+```typescript Node.js
+const agent = await aui.agents.get("order-support");
+```
+
+```python Python
+agent = aui.agents.get("order-support")
+```
+
+```bash cURL
+curl https://api.aui.io/v1/agents/order-support \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..."
+```
+
+</CodeGroup>
+
+---
+
+## Update an agent
+
+Update any field on an existing agent. Only include the fields you want to change.
+
+<CodeGroup>
+
+```typescript Node.js
+const updated = await aui.agents.update("order-support", {
+  objective: "Resolve order issues and proactively suggest related products",
+  guardrails: [
+    "Never share internal order costs or supplier information",
+    "Always verify order ID before making changes",
+    "Escalate to a human if the customer asks more than twice",
+    "Do not offer discounts above 15%",
+  ],
+});
+```
+
+```python Python
+updated = aui.agents.update(
+    "order-support",
+    objective="Resolve order issues and proactively suggest related products",
+    guardrails=[
+        "Never share internal order costs or supplier information",
+        "Always verify order ID before making changes",
+        "Escalate to a human if the customer asks more than twice",
+        "Do not offer discounts above 15%",
+    ],
+)
+```
+
+```bash cURL
+curl -X PATCH https://api.aui.io/v1/agents/order-support \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objective": "Resolve order issues and proactively suggest related products",
+    "guardrails": [
+      "Never share internal order costs or supplier information",
+      "Always verify order ID before making changes",
+      "Escalate to a human if the customer asks more than twice",
+      "Do not offer discounts above 15%"
+    ]
+  }'
+```
+
+</CodeGroup>
+
+---
+
+## Delete an agent
+
+Permanently deletes an agent and all its associated tools, parameters, and rules.
+
+<Warning>
+  This action is irreversible. All tools, parameters, rules, and workflow associations will be removed.
+</Warning>
+
+<CodeGroup>
+
+```typescript Node.js
+await aui.agents.delete("order-support");
+```
+
+```python Python
+aui.agents.delete("order-support")
+```
+
+```bash cURL
+curl -X DELETE https://api.aui.io/v1/agents/order-support \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..."
+```
+
+</CodeGroup>
+
+---
+
+## Parameters
+
+Parameters are typed variables that your agent collects from users or receives from your system. They drive rule evaluation and are injected into tool calls.
+
+### Add a parameter
+
+<ParamField body="code" type="string" required>
+  Unique identifier for the parameter. Must be kebab-case (e.g., `order-id`).
+</ParamField>
+
+<ParamField body="description" type="string">
+  What this parameter represents.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Data type. One of `string`, `numeric`, `date`, `boolean`, `object`, `list_of_objects`, `enum`, or `array`.
+</ParamField>
+
+<ParamField body="usage" type="string" required>
+  How the parameter flows. One of `input` (provided to the agent), `output` (set by the agent), or `all` (both).
+</ParamField>
+
+<ParamField body="values" type="string[]">
+  Allowed values. Required when `type` is `enum`.
+</ParamField>
+
+<ParamField body="nested_params" type="object[]">
+  Child parameters. Used when `type` is `object` or `list_of_objects`.
+</ParamField>
+
+<ParamField body="question" type="string">
+  The question the agent asks to collect this parameter from the user.
+</ParamField>
+
+<CodeGroup>
+
+```typescript Node.js
+const param = await aui.agents.parameters.create("order-support", {
+  code: "order-id",
+  description: "The customer's order identifier",
+  type: "string",
+  usage: "input",
+  question: "Could you provide your order ID? It starts with ORD-.",
+});
+```
+
+```python Python
+param = aui.agents.parameters.create(
+    "order-support",
+    code="order-id",
+    description="The customer's order identifier",
+    type="string",
+    usage="input",
+    question="Could you provide your order ID? It starts with ORD-.",
+)
+```
+
+```bash cURL
+curl -X POST https://api.aui.io/v1/agents/order-support/parameters \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "order-id",
+    "description": "The customer'\''s order identifier",
+    "type": "string",
+    "usage": "input",
+    "question": "Could you provide your order ID? It starts with ORD-."
+  }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 201 Created
+{
+  "code": "order-id",
+  "description": "The customer's order identifier",
+  "type": "string",
+  "usage": "input",
+  "values": null,
+  "nested_params": null,
+  "question": "Could you provide your order ID? It starts with ORD-.",
+  "created_at": "2026-03-09T10:01:00Z"
+}
+```
+
+</ResponseExample>
+
+### Parameter types
+
+| Type | Description | Example |
+| --- | --- | --- |
+| `string` | Free-form text | Order ID, email address |
+| `numeric` | Integer or decimal | Price, quantity |
+| `date` | ISO 8601 date or datetime | Delivery date |
+| `boolean` | True or false | Is VIP customer |
+| `enum` | One of a fixed set of values | Order status (`pending`, `shipped`, `delivered`) |
+| `array` | List of primitive values | List of product IDs |
+| `object` | Structured data with nested fields | Shipping address |
+| `list_of_objects` | Array of structured objects | Line items in an order |
+
+---
+
+## Complete setup flow
+
+Build a fully configured agent step by step.
+
+<Steps>
+  <Step title="Create the agent">
+    ```bash
+    curl -X POST https://api.aui.io/v1/agents \
+      -H "Authorization: Bearer aui_sk_live_..." \
+      -H "x-account-id: acc_01H..." \
+      -H "x-organization-id: org_01H..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "code": "order-support",
+        "objective": "Resolve customer order issues quickly and accurately",
+        "guardrails": ["Never share internal costs", "Verify order ID first"],
+        "tone_of_voice": "Friendly and professional",
+        "language": "en",
+        "scope": "organization"
+      }'
+    ```
+  </Step>
+  <Step title="Add parameters">
+    ```bash
+    curl -X POST https://api.aui.io/v1/agents/order-support/parameters \
+      -H "Authorization: Bearer aui_sk_live_..." \
+      -H "x-account-id: acc_01H..." \
+      -H "x-organization-id: org_01H..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "code": "order-id",
+        "type": "string",
+        "usage": "input",
+        "question": "What is your order ID?"
+      }'
+    ```
+  </Step>
+  <Step title="Add a tool">
+    Connect the agent to your order lookup API. See [Tools & Integrations](/agent-builder/agent-tools) for full details.
+    ```bash
+    curl -X POST https://api.aui.io/v1/agents/order-support/tools \
+      -H "Authorization: Bearer aui_sk_live_..." \
+      -H "x-account-id: acc_01H..." \
+      -H "x-organization-id: org_01H..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Lookup Order",
+        "type": "API",
+        "url": "https://api.yourstore.com/orders/{{order-id}}",
+        "method": "GET",
+        "authentication": "BEARER_TOKEN"
+      }'
+    ```
+  </Step>
+  <Step title="Add a rule">
+    Define deterministic behavior. See [Tools & Integrations](/agent-builder/agent-tools#rules) for the full rule schema.
+    ```bash
+    curl -X POST https://api.aui.io/v1/agents/order-support/rules \
+      -H "Authorization: Bearer aui_sk_live_..." \
+      -H "x-account-id: acc_01H..." \
+      -H "x-organization-id: org_01H..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "description": "Look up order when order ID is provided",
+        "when": {
+          "all": [
+            { "parameter": "order-id", "operator": "is_not_empty" }
+          ]
+        },
+        "then": {
+          "action": "ACTIVATE_ANOTHER_TOOL",
+          "tool": "Lookup Order"
+        }
+      }'
+    ```
+  </Step>
+  <Step title="Test it">
+    Send a message to your agent. See [Testing](/agent-builder/testing) for the full testing workflow.
+    ```bash
+    curl -X POST https://api.aui.io/v1/messages \
+      -H "Authorization: Bearer aui_sk_live_..." \
+      -H "x-account-id: acc_01H..." \
+      -H "x-organization-id: org_01H..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "network_id": "net_01H...",
+        "content": "Where is my order ORD-4521?",
+        "channel": "api"
+      }'
+    ```
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Tools & Integrations" icon="plug" href="/agent-builder/agent-tools">
+    Connect your agent to APIs, knowledge bases, and external services.
+  </Card>
+  <Card title="Knowledge Bases" icon="book" href="/agent-builder/knowledge-bases">
+    Give your agent access to documents and structured data.
+  </Card>
+</CardGroup>

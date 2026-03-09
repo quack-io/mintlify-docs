@@ -1,0 +1,168 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Common development workflows, chat commands, and best practices for the AUI Agent Builder CLI."
+---
+
+## Import and Edit an Existing Agent
+
+The most common workflow: pull an agent from the cloud, edit it locally, validate, and push back.
+
+```bash
+# Login and select your org/account/agent
+aui login
+
+# Import the agent configuration locally
+aui import-agent
+
+# Open the directory in your IDE
+cd my-agent
+code .    # or: cursor .
+
+# Edit any .aui.json file — you get schema autocomplete in VSCode/Cursor
+
+# Validate your changes
+aui dvalidate
+
+# See what changed
+aui diff
+
+# Push to the cloud
+aui push
+```
+
+<Info>
+  After importing, your IDE gets automatic JSON schema autocomplete for all `.aui.json` files. No additional setup required in VSCode or Cursor.
+</Info>
+
+---
+
+## Create a New Agent from Scratch
+
+Scaffold a blank agent project and build it up step by step.
+
+```bash
+# Login first
+aui login
+
+# Scaffold a new agent project
+aui create-agent ./my-new-agent
+cd my-new-agent
+
+# Follow GUIDE.md for step-by-step instructions
+# Edit the .aui.json files
+
+# Validate and push
+aui dvalidate
+aui push
+```
+
+The generated `GUIDE.md` walks you through configuring each file in order.
+
+---
+
+## Validate and Push Changes
+
+Always validate before pushing. Use `--dry-run` to preview.
+
+```bash
+# Validate all project files
+aui dvalidate
+
+# Preview what will be pushed
+aui push --dry-run
+
+# Push changes
+aui push
+
+# Force push everything (not just diffs)
+aui push --force
+```
+
+<Warning>
+  `aui push --force` sends all files, not just changed ones. Use it when you want to ensure the remote matches your local state exactly.
+</Warning>
+
+---
+
+## Switch Between Environments
+
+Test on staging before deploying to production.
+
+```bash
+# Work on staging
+aui env staging
+aui import-agent
+# ... make changes ...
+aui dvalidate
+aui push
+
+# When ready, switch to production
+aui env production
+aui push
+```
+
+---
+
+## CI/CD Integration
+
+Use environment variables to skip interactive login in CI pipelines.
+
+```bash
+export AUI_AUTH_TOKEN="your-jwt-token"
+export AUI_ENVIRONMENT="production"
+export AUI_ACCOUNT_ID="your-account-id"
+export AUI_ORGANIZATION_ID="your-org-id"
+
+# Validate and push
+aui dvalidate
+aui push
+```
+
+Or use API key authentication:
+
+```bash
+aui login --api-key <key> --account-id <id>
+aui push
+```
+
+---
+
+## Chat Commands
+
+When inside `aui chat`, the following commands are available:
+
+| Command | Description |
+| --- | --- |
+| `/exit` | Exit the chat session |
+| `/clear` | Clear conversation history |
+| `/history` | Show conversation history |
+| `/suggest` | Get AI-generated follow-up suggestions |
+| `/task` | Manage tasks |
+| `/help` | Show available chat commands |
+
+Start a chat session:
+
+```bash
+aui chat                  # WebSocket streaming (default)
+aui chat --rest           # REST API fallback
+aui chat --user-id u123   # Custom user ID
+```
+
+Features:
+- Real-time streaming via WebSocket
+- Inline product cards with images
+- AI-generated follow-up suggestions
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Command Reference" icon="terminal" href="/cli/commands">
+    Full reference for all CLI commands.
+  </Card>
+  <Card title="Configuration" icon="gear" href="/cli/configuration">
+    Project structure, config files, and environment variables.
+  </Card>
+</CardGroup>

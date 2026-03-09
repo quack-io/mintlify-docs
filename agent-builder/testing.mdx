@@ -1,0 +1,149 @@
+---
+title: "Testing"
+sidebarTitle: "Testing"
+description: "Test agents interactively, run automated test suites, and compare agent versions with A/B testing."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Apr 26</span>
+</div>
+
+AUI provides three ways to validate your agent before deploying to production: interactive playground testing, automated test suites, and A/B testing between agent versions.
+
+## Testing modes
+
+<CardGroup cols={3}>
+  <Card title="Playground" icon="message">
+    Interactive chat interface. Send messages and inspect how the agent processes them — which rules fire, which tools are called, and what parameters are collected.
+  </Card>
+  <Card title="Test Suites" icon="list-check">
+    Automated test cases with expected outcomes. Define input messages and assert on agent behavior: response content, tool calls, parameter values, and rule activations.
+  </Card>
+  <Card title="A/B Testing" icon="code-compare">
+    Run two agent versions side by side. Compare response quality, tool usage, and resolution rates to pick the better configuration.
+  </Card>
+</CardGroup>
+
+## How it works
+
+<Steps>
+  <Step title="Create a test session">
+    A test session is an isolated environment scoped to your agent. It uses test API keys so no production data is affected.
+  </Step>
+  <Step title="Send test messages">
+    Send messages to the session and inspect the full execution trace: intent classification, rule evaluation, tool calls, and the final response.
+  </Step>
+  <Step title="Review results">
+    Check that the agent behaved as expected. Inspect parameter values, verify tool call payloads, and confirm rule activations.
+  </Step>
+</Steps>
+
+## Test session object
+
+<ResponseField name="id" type="string">
+  Unique identifier (e.g., `test_01J...`).
+</ResponseField>
+
+<ResponseField name="agent_code" type="string">
+  The agent being tested.
+</ResponseField>
+
+<ResponseField name="agent_version" type="integer">
+  The agent version under test.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Session status: `active`, `completed`, or `failed`.
+</ResponseField>
+
+<ResponseField name="messages" type="object[]">
+  Messages exchanged in the session.
+</ResponseField>
+
+<ResponseField name="execution_traces" type="object[]">
+  Detailed trace of each turn: rules evaluated, tools called, parameters updated.
+  <Expandable title="execution trace fields">
+    <ResponseField name="turn" type="integer">
+      Turn number in the conversation.
+    </ResponseField>
+    <ResponseField name="rules_evaluated" type="object[]">
+      Rules that were checked and whether they matched.
+    </ResponseField>
+    <ResponseField name="tools_called" type="object[]">
+      Tools invoked during this turn, with request/response payloads.
+    </ResponseField>
+    <ResponseField name="parameters_updated" type="object">
+      Parameters that changed value during this turn.
+    </ResponseField>
+    <ResponseField name="duration_ms" type="integer">
+      Processing time in milliseconds.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp.
+</ResponseField>
+
+```json Example
+{
+  "id": "test_01J...",
+  "agent_code": "order-support",
+  "agent_version": 3,
+  "status": "active",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Where is my order ORD-4521?"
+    },
+    {
+      "role": "agent",
+      "content": "I found your order ORD-4521. It shipped on March 7th and is currently in transit. Here's your tracking link: ..."
+    }
+  ],
+  "execution_traces": [
+    {
+      "turn": 1,
+      "rules_evaluated": [
+        { "description": "Auto-lookup order when order ID is provided", "matched": true }
+      ],
+      "tools_called": [
+        { "name": "Lookup Order", "status": "success", "duration_ms": 230 }
+      ],
+      "parameters_updated": {
+        "order-id": "ORD-4521",
+        "order-status": "in_transit",
+        "tracking-url": "https://track.carrier.com/..."
+      },
+      "duration_ms": 1240
+    }
+  ],
+  "created_at": "2026-03-09T10:30:00Z"
+}
+```
+
+## Endpoints
+
+<Note>
+  Detailed endpoint documentation with full request/response examples is coming soon.
+</Note>
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/v1/agents/:code/test-sessions` | Create a test session |
+| `POST` | `/v1/agents/:code/test-sessions/:id/messages` | Send a test message |
+| `GET` | `/v1/agents/:code/test-sessions/:id` | Get session with traces |
+| `POST` | `/v1/agents/:code/test-suites` | Create an automated test suite |
+| `POST` | `/v1/agents/:code/test-suites/:id/run` | Run a test suite |
+| `GET` | `/v1/agents/:code/test-suites/:id/results` | Get test suite results |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create an Agent" icon="robot" href="/agent-builder/create-agent">
+    Build and configure your first agent.
+  </Card>
+  <Card title="Tools & Integrations" icon="plug" href="/agent-builder/agent-tools">
+    Add tools for your agent to test against.
+  </Card>
+</CardGroup>

@@ -1,0 +1,109 @@
+---
+title: "Agent Builder API"
+sidebarTitle: "Overview"
+description: "Programmatically create, configure, and manage AI agents with deterministic business logic."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+</div>
+
+The Agent Builder API will let you programmatically create and configure AI agents that combine LLM reasoning with rule-based control. Define what your agent knows, what it can do, and exactly how it should behave — all through a REST API.
+
+<Note>
+  The Agent Builder API is currently in development. The architecture and core concepts below reflect the planned design. Full API reference and endpoints will be published at launch.
+</Note>
+
+---
+
+## Architecture
+
+An AUI agent is composed of five building blocks:
+
+```
+┌─────────────────────────────────────────────┐
+│                   AGENT                      │
+│  code · objective · guardrails · tone        │
+│                                              │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
+│  │  Tools    │  │  Rules   │  │ Parameters│  │
+│  │ (API,RAG, │  │ (when/   │  │ (input/   │  │
+│  │  MCP,...) │  │  then)   │  │  output)  │  │
+│  └──────────┘  └──────────┘  └───────────┘  │
+│                                              │
+│  ┌──────────────┐  ┌──────────────────────┐  │
+│  │ Knowledge    │  │ Workflows            │  │
+│  │ Bases        │  │ (orchestrated tools) │  │
+│  └──────────────┘  └──────────────────────┘  │
+└─────────────────────────────────────────────┘
+```
+
+| Component | Purpose |
+| --- | --- |
+| **Agent** | Top-level entity. Defines identity, objective, guardrails, and tone of voice. |
+| **Parameters** | Typed variables the agent collects or receives. Used in rules and tool calls. |
+| **Tools** | Integrations the agent invokes — REST APIs, knowledge bases, MCP servers, structured data. |
+| **Rules** | Deterministic when/then logic evaluated before every response. |
+| **Knowledge Bases** | Document stores for grounded, accurate answers. |
+| **Workflows** | Orchestrated sequences of tool executions with conditional branching. |
+
+---
+
+## Neuro-Symbolic Engine
+
+AUI agents are not pure LLM wrappers. The engine evaluates two layers on every turn:
+
+1. **Symbolic layer** — Rules are evaluated first. Condition groups (`all`, `any`, `not`) check parameter values, conversation state, and metadata. Matching rules fire deterministic actions: return text, call an API, ask a question, or block the response.
+
+2. **Neural layer** — The LLM handles everything rules don't cover: understanding intent, generating language, summarizing documents, and deciding which tools to invoke.
+
+<Info>
+  Rules always take priority over LLM decisions. If a rule matches, its action executes — the LLM does not override it.
+</Info>
+
+---
+
+## Planned Capabilities
+
+<CardGroup cols={2}>
+  <Card title="Agent CRUD" icon="robot">
+    Create, read, update, and delete agents. Configure objective, guardrails, tone, and scope.
+  </Card>
+  <Card title="Tools & Integrations" icon="plug">
+    6 integration types: API, RAG, MCP, Internal Context, Structured, Gen AI. Full request/response schema configuration.
+  </Card>
+  <Card title="Rules Engine" icon="scale-balanced">
+    Declarative when/then rules with condition groups. Actions include text responses, API calls, tool activation, and blocking.
+  </Card>
+  <Card title="Parameters" icon="sliders">
+    Typed parameters (string, numeric, date, boolean, enum, array, object) with input/output usage control.
+  </Card>
+  <Card title="Knowledge Bases" icon="book">
+    Upload files (PDF, DOCX, CSV, etc.), connect websites, and query with RAG for grounded answers.
+  </Card>
+  <Card title="Workflows" icon="diagram-project">
+    Multi-step tool orchestration with conditional branching, retry strategies, and timeout configuration.
+  </Card>
+</CardGroup>
+
+---
+
+## What's Coming
+
+<Steps>
+  <Step title="Mid April 2026 — Public Beta">
+    Agent CRUD endpoints, parameter management, tool configuration, and rule engine API.
+  </Step>
+  <Step title="May 2026 — Knowledge Base API">
+    File upload, website crawling, and RAG query endpoints.
+  </Step>
+  <Step title="June 2026 — Workflows & Testing">
+    Workflow orchestration API and automated testing suite endpoints.
+  </Step>
+</Steps>
+
+---
+
+## Get Notified
+
+Want early access? Reach out through the [AUI Console](https://console.aui.io) or join the [Community](https://discord.aui.io) to stay updated on the launch.

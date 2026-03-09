@@ -1,0 +1,122 @@
+---
+title: "Installation"
+description: "Install the AUI Agent Builder CLI and authenticate with your account."
+---
+
+## System Requirements
+
+- **Node.js** 18 or later
+- **npm** (included with Node.js)
+- **Git** (used for change detection in `aui push` and `aui diff`)
+
+## Install
+
+```bash
+npm install -g aui-agent-builder
+```
+
+Verify the installation:
+
+```bash
+aui --version
+```
+
+## Authentication
+
+AUI supports three authentication methods:
+
+<Tabs>
+  <Tab title="Browser (Default)">
+    Opens the AUI playground login page. Your token is received automatically via a local callback.
+
+    ```bash
+    aui login
+    ```
+
+    The CLI will open your browser. Sign in, and you'll be redirected back automatically.
+  </Tab>
+  <Tab title="Email + OTP">
+    Enter your email, then paste the verification code sent to your inbox.
+
+    ```bash
+    aui login --email user@example.com
+    ```
+  </Tab>
+  <Tab title="Access Token">
+    Paste a JWT directly — useful for CI/CD or when copying from browser DevTools.
+
+    ```bash
+    aui login --token <jwt>
+    ```
+  </Tab>
+  <Tab title="API Key">
+    Authenticate with an API key and account ID.
+
+    ```bash
+    aui login --api-key <key> --account-id <id>
+    ```
+  </Tab>
+</Tabs>
+
+After authenticating, the CLI walks you through selecting your **Organization**, **Account**, and **Agent**.
+
+<Info>
+  Session credentials are stored in `~/.aui/session.json`. They persist across terminal sessions.
+</Info>
+
+## Post-Login Setup
+
+<Steps>
+  <Step title="Verify your session">
+    ```bash
+    aui status
+    ```
+
+    You should see your account info, active agent, and current environment.
+  </Step>
+  <Step title="Set your environment">
+    ```bash
+    aui env staging      # Development and testing
+    aui env production   # Live environment
+    aui env custom       # Custom environment
+    ```
+
+    The active environment is stored in `~/.aui/environment`.
+  </Step>
+  <Step title="Import or create an agent">
+    ```bash
+    # Import an existing agent
+    aui import-agent
+
+    # Or scaffold a new one
+    aui create-agent ./my-agent
+    ```
+  </Step>
+</Steps>
+
+## Uninstall
+
+```bash
+npm uninstall -g aui-agent-builder
+```
+
+To remove stored credentials and session data:
+
+```bash
+rm -rf ~/.aui
+```
+
+<Warning>
+  This removes all stored sessions, API keys, and cached schemas. You'll need to run `aui login` again.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Command Reference" icon="terminal" href="/cli/commands">
+    Full reference for all CLI commands.
+  </Card>
+  <Card title="Configuration" icon="gear" href="/cli/configuration">
+    Project structure, config files, and environment variables.
+  </Card>
+</CardGroup>

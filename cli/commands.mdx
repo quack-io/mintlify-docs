@@ -1,0 +1,321 @@
+---
+title: "Command Reference"
+description: "Complete reference for every AUI Agent Builder CLI command."
+---
+
+## Quick Reference
+
+| Command | Alias | Description |
+| --- | --- | --- |
+| [`aui login`](#aui-login) | | Authenticate with the AUI platform |
+| [`aui logout`](#aui-logout) | | Clear session and credentials |
+| [`aui env`](#aui-env) | | Show or switch environment |
+| [`aui status`](#aui-status) | | Display session and project info |
+| [`aui agents`](#aui-agents) | `aui agent` | Manage agents |
+| [`aui list-agents`](#aui-list-agents) | `aui ls` | Quick table of all agents |
+| [`aui account`](#aui-account) | `aui accounts` | Manage accounts |
+| [`aui import-agent`](#aui-import-agent) | `aui import` | Download agent config locally |
+| [`aui create-agent`](#aui-create-agent) | | Scaffold a new agent project |
+| [`aui push`](#aui-push) | | Upload local changes to backend |
+| [`aui diff`](#aui-diff) | | Compare agent configurations |
+| [`aui dvalidate`](#aui-dvalidate) | | Validate .aui.json files |
+| [`aui pull-schema`](#aui-pull-schema) | | Fetch latest domain schemas |
+| [`aui chat`](#aui-chat) | | Interactive terminal chat |
+| [`aui serve`](#aui-serve) | | Web-based chat playground |
+| [`aui rag`](#aui-rag) | | Manage knowledge bases |
+| [`aui add-integration`](#aui-add-integration) | | Add integration to agent |
+
+---
+
+## Authentication & Session
+
+<AccordionGroup>
+  <Accordion title="aui login">
+    Authenticate with the AUI platform.
+
+    ```bash
+    aui login
+    aui login --email user@example.com
+    aui login --token <jwt>
+    aui login --api-key <key> --account-id <id>
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--email <email>` | Authenticate with email + OTP |
+    | `--token <jwt>` | Authenticate with an access token |
+    | `--environment <env>` | Target environment (`staging`, `custom`, `production`) |
+    | `--account-id <id>` | Pre-select account |
+    | `--api-key <key>` | Use API key authentication |
+    | `--url <url>` | Override API base URL |
+  </Accordion>
+
+  <Accordion title="aui logout">
+    Clear the local session and stored credentials.
+
+    ```bash
+    aui logout
+    ```
+  </Accordion>
+
+  <Accordion title="aui env">
+    Show or switch the active environment.
+
+    ```bash
+    aui env              # Show current environment
+    aui env staging      # Switch to staging
+    aui env production   # Switch to production
+    aui env custom       # Switch to custom
+    ```
+
+    The active environment is stored in `~/.aui/environment`.
+  </Accordion>
+
+  <Accordion title="aui status">
+    Display current session info, linked agent, and a summary of local project files.
+
+    ```bash
+    aui status
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Agent Management
+
+<AccordionGroup>
+  <Accordion title="aui agents">
+    Manage agents interactively. Alias: `aui agent`.
+
+    ```bash
+    aui agents              # Interactive agent menu
+    aui agents --list       # List all agents in the account
+    aui agents --create     # Create a new agent
+    aui agents --switch     # Switch to a different agent
+    aui agents --import     # Import an agent locally
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--list` | List all agents |
+    | `--create` | Create a new agent interactively |
+    | `--switch` | Switch active agent |
+    | `--import` | Import agent config files |
+  </Accordion>
+
+  <Accordion title="aui list-agents">
+    Quick table view of all agents in the current account. Alias: `aui ls`.
+
+    ```bash
+    aui ls
+    ```
+  </Accordion>
+
+  <Accordion title="aui account">
+    Manage accounts (projects). Alias: `aui accounts`.
+
+    ```bash
+    aui account              # Interactive account menu
+    aui account --list       # List all accounts
+    aui account --create <name>   # Create a new account
+    aui account --switch     # Switch active account
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--list` | List all accounts |
+    | `--create <name>` | Create a new account with the given name |
+    | `--switch` | Switch active account |
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Import & Create
+
+<AccordionGroup>
+  <Accordion title="aui import-agent">
+    Download an agent's configuration as local `.aui.json` files. Alias: `aui import`.
+
+    ```bash
+    aui import-agent                  # Import the currently selected agent
+    aui import-agent <agent-id>      # Import a specific agent by ID
+    aui import-agent --dir ./my-agent # Import into a specific directory
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--dir <path>` | Target directory for imported files |
+    | `--api-key <key>` | Use API key instead of session token |
+
+    Downloads from 6 backend endpoints: general settings, parameters, entities, integrations, tools, and rules. Also fetches JSON schemas for editor autocomplete and generates a `GUIDE.md`.
+  </Accordion>
+
+  <Accordion title="aui create-agent">
+    Scaffold a new blank agent project with example files.
+
+    ```bash
+    aui create-agent              # Scaffold in current directory
+    aui create-agent ./my-agent   # Scaffold in a specific directory
+    aui create-agent --force      # Overwrite existing files
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--force` | Overwrite existing project files |
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Push, Diff & Validate
+
+<AccordionGroup>
+  <Accordion title="aui push">
+    Upload local changes to the AUI backend.
+
+    ```bash
+    aui push
+    aui push --dry-run
+    aui push --force
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--dry-run` | Show what would be pushed without making changes |
+    | `--force` | Push all files, not just changed ones |
+    | `--skip-validation` | Skip local validation before pushing |
+    | `--api-key <key>` | Use API key instead of session token |
+
+    <Info>
+      Push uses smart patching: **PATCH** for modified fields, **POST** for new tools, **PUT** (upsert) for parameters, entities, and rules. Changes are detected via git diff against the last push baseline.
+    </Info>
+  </Accordion>
+
+  <Accordion title="aui diff">
+    Compare two agent configurations, or show changes since the last import/push.
+
+    ```bash
+    aui diff                 # Show local changes since import
+    aui diff a.json b.json   # Compare two files
+    ```
+  </Accordion>
+
+  <Accordion title="aui dvalidate">
+    Validate `.aui.json` files against domain schemas.
+
+    ```bash
+    aui dvalidate                    # Validate all files in current directory
+    aui dvalidate ./agent.aui.json   # Validate a specific file
+    aui dvalidate --verbose          # Show detailed validation output
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--verbose` | Show detailed validation messages |
+
+    Performs:
+    - JSON syntax checking
+    - Required fields validation
+    - Cross-reference integrity (e.g., tools referencing valid integrations)
+  </Accordion>
+
+  <Accordion title="aui pull-schema">
+    Fetch the latest domain schemas (`.dschema.json`) from the backend for local validation and editor autocomplete.
+
+    ```bash
+    aui pull-schema
+    aui pull-schema --improved
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--api-key <key>` | Use API key instead of session token |
+    | `--improved` | Fetch improved schemas optimized for coding agents |
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Development & Testing
+
+<AccordionGroup>
+  <Accordion title="aui chat">
+    Start an interactive conversation with an AUI agent in the terminal.
+
+    ```bash
+    aui chat
+    aui chat --rest            # Use REST API instead of WebSocket
+    aui chat --user-id <id>    # Set a custom user ID
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--api-key <key>` | Use API key instead of session token |
+    | `--env <env>` | Target environment |
+    | `--user-id <id>` | Custom user identifier |
+    | `--rest` | Use REST fallback instead of WebSocket streaming |
+
+    Features:
+    - Real-time streaming via WebSocket
+    - Inline product cards with images
+    - AI-generated follow-up suggestions
+
+    See [Chat Commands](/cli/workflows#chat-commands) for in-session commands.
+  </Accordion>
+
+  <Accordion title="aui serve">
+    Launch a web-based chat playground on localhost.
+
+    ```bash
+    aui serve
+    aui serve --port 4000
+    aui serve --no-open
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--port <number>` | Port to run the server on (default: 3000) |
+    | `--no-open` | Don't auto-open the browser |
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Agent Configuration
+
+<AccordionGroup>
+  <Accordion title="aui rag">
+    Manage RAG (Retrieval-Augmented Generation) knowledge bases.
+
+    ```bash
+    aui rag                    # Interactive RAG management menu
+    aui rag --add-file         # Upload a file to a knowledge base
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--add-file` | Upload a file or URL to a knowledge base |
+
+    Capabilities:
+    - List knowledge bases
+    - Upload files and URLs
+    - Export knowledge base content
+    - Bulk-edit knowledge base entries
+
+    <Info>
+      The RAG API key is stored securely at `~/.aui/kbm-key` (file mode 600).
+    </Info>
+  </Accordion>
+
+  <Accordion title="aui add-integration">
+    Add an integration (API, RAG, or MCP) to the current agent project interactively.
+
+    ```bash
+    aui add-integration
+    ```
+
+    Walks you through selecting the integration type and configuring it.
+  </Accordion>
+</AccordionGroup>

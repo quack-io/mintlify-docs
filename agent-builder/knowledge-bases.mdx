@@ -1,0 +1,219 @@
+---
+title: "Knowledge Bases"
+sidebarTitle: "Knowledge Bases"
+description: "Upload documents and connect data sources so your agent can retrieve accurate, grounded answers."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#22C55E', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>v1</span>
+  <span style={{ background: 'rgba(129,105,255,0.15)', color: '#8169FF', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Stable</span>
+</div>
+
+Knowledge bases give your agent access to your data. Upload documents, connect websites, or link APIs — the agent searches them at runtime to ground its responses in real information instead of hallucinating.
+
+## How it works
+
+1. You create a knowledge base and add **resources** (files, websites, APIs).
+2. AUI processes and indexes the content automatically.
+3. When a RAG tool is triggered, the agent queries the knowledge base and uses the results to generate a grounded response.
+
+<Info>
+  Knowledge bases use vector search with hybrid retrieval (semantic + keyword) for high recall and precision.
+</Info>
+
+## Knowledge base object
+
+<ResponseField name="id" type="string">
+  Unique identifier (e.g., `kb_01J...`).
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Display name.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  What this knowledge base contains.
+</ResponseField>
+
+<ResponseField name="resource_count" type="integer">
+  Number of resources in the knowledge base.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Processing status: `ready`, `processing`, or `error`.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp.
+</ResponseField>
+
+```json Example
+{
+  "id": "kb_01J...",
+  "name": "Product Documentation",
+  "description": "All product guides, FAQs, and troubleshooting articles",
+  "resource_count": 47,
+  "status": "ready",
+  "created_at": "2026-03-01T08:00:00Z",
+  "updated_at": "2026-03-09T10:00:00Z"
+}
+```
+
+## Resource object
+
+A resource is a single data source within a knowledge base.
+
+<ResponseField name="id" type="string">
+  Unique identifier.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Resource type: `FILE`, `WEBSITE`, `API`, or `INTERNAL_CONTEXT`.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Display name or filename.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Processing status: `pending`, `processing`, `ready`, or `error`.
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Type-specific metadata (file size, URL, content type, etc.).
+</ResponseField>
+
+```json Example
+{
+  "id": "res_01J...",
+  "type": "FILE",
+  "name": "return-policy.pdf",
+  "status": "ready",
+  "metadata": {
+    "file_type": "pdf",
+    "file_size": 245000,
+    "page_count": 12
+  },
+  "created_at": "2026-03-01T08:05:00Z"
+}
+```
+
+## Supported resource types
+
+<Tabs>
+  <Tab title="File">
+    Upload documents directly. Supported formats:
+
+    | Format | Extension |
+    | --- | --- |
+    | PDF | `.pdf` |
+    | Word | `.docx` |
+    | Excel | `.xlsx` |
+    | Plain text | `.txt` |
+    | JSON | `.json` |
+    | CSV | `.csv` |
+    | HTML | `.html` |
+    | Markdown | `.md`, `.markdown` |
+  </Tab>
+  <Tab title="Website">
+    Crawl and index a website. AUI follows links within the domain and indexes all discovered pages.
+
+    ```json
+    {
+      "type": "WEBSITE",
+      "url": "https://docs.yourcompany.com",
+      "crawl_depth": 3
+    }
+    ```
+  </Tab>
+  <Tab title="API">
+    Connect to a REST API that returns content to index. AUI periodically fetches and re-indexes the data.
+
+    ```json
+    {
+      "type": "API",
+      "url": "https://api.yourcompany.com/articles",
+      "method": "GET",
+      "authentication": "BEARER_TOKEN"
+    }
+    ```
+  </Tab>
+  <Tab title="Internal Context">
+    Provide static text or structured data directly. Useful for company policies, brand guidelines, or FAQs that change infrequently.
+
+    ```json
+    {
+      "type": "INTERNAL_CONTEXT",
+      "content": "Our return policy allows returns within 30 days..."
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Endpoints
+
+<Note>
+  Detailed endpoint documentation with full request/response examples is coming soon. The following endpoints are available today.
+</Note>
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/v1/knowledge-bases` | Create a knowledge base |
+| `GET` | `/v1/knowledge-bases` | List knowledge bases |
+| `GET` | `/v1/knowledge-bases/:id/search` | Search a knowledge base |
+| `GET` | `/v1/knowledge-bases/:id/query` | Query a knowledge base with natural language |
+
+### Quick example
+
+```bash cURL
+# Create a knowledge base
+curl -X POST https://api.aui.io/v1/knowledge-bases \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Product Documentation",
+    "description": "All product guides, FAQs, and troubleshooting articles"
+  }'
+
+# Search the knowledge base
+curl "https://api.aui.io/v1/knowledge-bases/kb_01J.../search?q=return+policy" \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..."
+```
+
+## Connecting a knowledge base to an agent
+
+Use a RAG tool to connect a knowledge base to your agent. See [Tools & Integrations](/agent-builder/agent-tools) for details.
+
+```bash cURL
+curl -X POST https://api.aui.io/v1/agents/order-support/tools \
+  -H "Authorization: Bearer aui_sk_live_..." \
+  -H "x-account-id: acc_01H..." \
+  -H "x-organization-id: org_01H..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Search Return Policy",
+    "type": "RAG",
+    "url": "https://api.aui.io/v1/knowledge-bases/kb_01J.../search",
+    "method": "GET",
+    "authentication": "BEARER_TOKEN"
+  }'
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Tools & Integrations" icon="plug" href="/agent-builder/agent-tools">
+    Learn how to connect knowledge bases to agents using RAG tools.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/agent-builder/workflows">
+    Orchestrate multi-step sequences that combine knowledge base lookups with API calls.
+  </Card>
+</CardGroup>

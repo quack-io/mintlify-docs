@@ -1,0 +1,262 @@
+---
+title: "Messages"
+description: "Send messages to an AUI agent and receive complete responses."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#22C55E', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>v1</span>
+  <span style={{ background: 'rgba(129,105,255,0.15)', color: '#8169FF', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Stable</span>
+</div>
+
+## Send a Message (REST)
+
+Send a message to an AUI agent and receive the complete response.
+
+```bash cURL
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/message" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: your-api-key" \
+  -d '{
+    "task_id": "68e78d0dc5a4b19a030d03d6",
+    "text": "I am looking for a built-in microwave with at least 20 liters capacity"
+  }'
+```
+
+### POST `/api/v1/external/message`
+
+**Base URL:** `https://data-services.aui.io/api/ia-controller`
+
+#### Headers
+
+| Header | Required | Description |
+| --- | --- | --- |
+| `x-network-api-key` | Yes | Your network API key |
+| `Content-Type` | Yes | Must be `application/json` |
+
+#### Request Body
+
+<ParamField body="task_id" type="string" required>
+  The task identifier. Represents a conversation session with the agent.
+</ParamField>
+
+<ParamField body="text" type="string" required>
+  The message content to send to the agent.
+</ParamField>
+
+<ParamField body="context" type="object">
+  Optional supplementary information for the agent.
+
+  <Expandable title="context properties">
+    <ParamField body="context.url" type="string">
+      A URL providing product or page context for the agent.
+    </ParamField>
+
+    <ParamField body="context.lead_details" type="object">
+      Customer or lead information passed to the agent. Key-value pairs with any structure.
+
+      ```json
+      {
+        "customer_type": "residential",
+        "budget_range": "300-500"
+      }
+      ```
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<Info>
+  The `context` parameter is optional and primarily used for specific integrations configured during onboarding.
+</Info>
+
+#### Response
+
+Returns an `ExternalTaskMessage` object containing the agent's response.
+
+<ResponseField name="id" type="string">
+  Unique message identifier (UUID).
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the message was created.
+</ResponseField>
+
+<ResponseField name="text" type="string">
+  The agent's response message.
+</ResponseField>
+
+<ResponseField name="sender" type="object">
+  Agent details.
+
+  <Expandable title="sender properties">
+    <ResponseField name="sender.id" type="string">
+      Agent identifier.
+    </ResponseField>
+    <ResponseField name="sender.type" type="string">
+      Always `"agent"`.
+    </ResponseField>
+    <ResponseField name="sender.email" type="string">
+      Agent email address.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="receiver" type="object">
+  User details.
+
+  <Expandable title="receiver properties">
+    <ResponseField name="receiver.id" type="string">
+      User identifier.
+    </ResponseField>
+    <ResponseField name="receiver.type" type="string">
+      Always `"user"`.
+    </ResponseField>
+    <ResponseField name="receiver.email" type="string">
+      User email address.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="options" type="array">
+  Product recommendations with widget parameters, if applicable.
+</ResponseField>
+
+<ResponseField name="variants_options" type="array">
+  Available product variants, if applicable.
+</ResponseField>
+
+<ResponseField name="followup_suggestions" type="array">
+  AI-generated follow-up question suggestions.
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "id": "507f1f77bcf86cd799439011",
+  "created_at": "2026-03-09T14:22:01.000Z",
+  "text": "I found several built-in microwaves with 20+ liters capacity. Here are the top options for you:",
+  "sender": {
+    "id": "agent_abc123",
+    "type": "agent",
+    "email": "agent@aui.io"
+  },
+  "receiver": {
+    "id": "user_xyz789",
+    "type": "user",
+    "email": "customer@example.com"
+  },
+  "options": [],
+  "variants_options": [],
+  "followup_suggestions": [
+    "What is the price range?",
+    "Do any of these come in stainless steel?",
+    "Which one has the best energy rating?"
+  ]
+}
+```
+</ResponseExample>
+
+---
+
+## Code Examples
+
+<CodeGroup>
+```javascript Node.js
+const response = await fetch(
+  "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-network-api-key": "your-api-key",
+    },
+    body: JSON.stringify({
+      task_id: "68e78d0dc5a4b19a030d03d6",
+      text: "I am looking for a built-in microwave with at least 20 liters capacity",
+      context: {
+        url: "https://example.com/products",
+        lead_details: {
+          customer_type: "residential",
+          budget_range: "300-500",
+        },
+      },
+    }),
+  }
+);
+
+const message = await response.json();
+console.log(message.text);
+console.log(message.followup_suggestions);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+    headers={
+        "Content-Type": "application/json",
+        "x-network-api-key": "your-api-key",
+    },
+    json={
+        "task_id": "68e78d0dc5a4b19a030d03d6",
+        "text": "I am looking for a built-in microwave with at least 20 liters capacity",
+        "context": {
+            "url": "https://example.com/products",
+            "lead_details": {
+                "customer_type": "residential",
+                "budget_range": "300-500",
+            },
+        },
+    },
+)
+
+message = response.json()
+print(message["text"])
+print(message["followup_suggestions"])
+```
+
+```bash cURL
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/message" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: your-api-key" \
+  -d '{
+    "task_id": "68e78d0dc5a4b19a030d03d6",
+    "text": "I am looking for a built-in microwave with at least 20 liters capacity",
+    "context": {
+      "url": "https://example.com/products",
+      "lead_details": {
+        "customer_type": "residential",
+        "budget_range": "300-500"
+      }
+    }
+  }'
+```
+</CodeGroup>
+
+---
+
+## Errors
+
+| Status | Description |
+| --- | --- |
+| `401` | Missing or invalid `x-network-api-key` header |
+| `422` | Validation error — invalid request parameters |
+| `400` | Application error — may include `extra_data` with moderation details |
+
+```json 401
+{
+  "detail": "Not authenticated"
+}
+```
+
+```json 422
+{
+  "detail": [
+    {
+      "loc": ["body", "task_id"],
+      "msg": "field required",
+      "type": "value_error.missing"
+    }
+  ]
+}
+```

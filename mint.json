@@ -1,0 +1,121 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "AUI",
+  "primaryTab": {
+    "name": "Overview"
+  },
+  "logo": {
+    "dark": "/logo/favicon.png",
+    "light": "/logo/aui-logo.jpg"
+  },
+  "favicon": "/logo/favicon.png",
+  "colors": {
+    "primary": "#8169FF",
+    "light": "#8169FF",
+    "dark": "#5239CC",
+    "background": {
+      "dark": "#0A0A0A",
+      "light": "#FFFFFF"
+    },
+    "anchors": {
+      "from": "#8169FF",
+      "to": "#5239CC"
+    }
+  },
+  "font": {
+    "headings": {
+      "family": "Poppins",
+      "weight": 600
+    },
+    "body": {
+      "family": "Poppins",
+      "weight": 400
+    }
+  },
+  "modeToggle": {
+    "default": "dark"
+  },
+  "tabs": [
+    {
+      "name": "CLI",
+      "url": "cli"
+    },
+    {
+      "name": "Messaging API",
+      "url": "messaging-api"
+    },
+    {
+      "name": "Agent Builder API",
+      "url": "agent-builder"
+    }
+  ],
+  "topbarLinks": [
+    {
+      "name": "Demo",
+      "url": "https://demo.aui.io"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Playground",
+    "url": "https://playground.aui.io"
+  },
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/aui-io"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Overview",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "authentication",
+        "sdks",
+        "changelog"
+      ]
+    },
+    {
+      "group": "Messaging API",
+      "pages": [
+        "messaging-api/overview",
+        "messaging-api/tasks",
+        "messaging-api/send-message",
+        "messaging-api/websocket",
+        "messaging-api/errors"
+      ]
+    },
+    {
+      "group": "Agent Builder API",
+      "pages": [
+        "agent-builder/overview"
+      ]
+    },
+    {
+      "group": "CLI",
+      "pages": [
+        "cli/overview",
+        "cli/installation",
+        "cli/commands",
+        "cli/configuration",
+        "cli/workflows"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/Aug_Intel",
+    "linkedin": "https://www.linkedin.com/company/augmentedintelligence-aui/",
+    "github": "https://github.com/aui-io"
+  },
+  "api": {
+    "baseUrl": "https://api.aui.io/v1"
+  },
+  "openapi": [],
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true
+  },
+  "css": "/custom.css"
+}

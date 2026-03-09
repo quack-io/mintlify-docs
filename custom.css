@@ -1,0 +1,248 @@
+/* AUI Brand — Custom Mintlify Overrides */
+/* Mostly black & white, purple as accent only */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* ─── Typography ─── */
+body,
+.mint-provider {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600;
+}
+
+p, li, td, th, label, span, a {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+code, pre, .code-block {
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace !important;
+}
+
+/* ─── Dark mode: black base ─── */
+.dark {
+  --background: #0A0A0A;
+}
+
+.dark .mint-card,
+.dark [class*="card"] {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .mint-card:hover,
+.dark [class*="card"]:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── Light mode: white base ─── */
+.light .mint-card,
+.light [class*="card"] {
+  border-color: #E5E5E5;
+}
+
+.light .mint-card:hover,
+.light [class*="card"]:hover {
+  border-color: #CCCCCC;
+}
+
+/* ─── Focus states (a11y) — purple accent ─── */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #8169FF;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Code blocks: clean, borderless ─── */
+pre,
+.dark pre,
+.light pre,
+[class*="code-block"],
+[class*="codeblock"],
+[class*="CodeBlock"] {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dark pre,
+.dark [class*="code-block"],
+.dark [class*="codeblock"] {
+  background: #111111 !important;
+}
+
+/* Copy button inside code blocks — kill all white backgrounds */
+.dark pre button,
+.dark pre button *,
+.dark pre [class*="copy"],
+.dark pre [class*="copy"] *,
+.dark pre [class*="Copy"],
+.dark pre [class*="Copy"] *,
+.dark [class*="code"] button,
+.dark [class*="code"] button *,
+.dark [class*="Code"] button,
+.dark [class*="Code"] button *,
+.dark [class*="copy"],
+.dark [class*="copy"] *,
+.dark [class*="Copy"],
+.dark [class*="Copy"] *,
+.dark [class*="clipboard"],
+.dark [class*="clipboard"] * {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  fill: rgba(255, 255, 255, 0.4) !important;
+}
+
+.dark pre button:hover,
+.dark pre button:hover *,
+.dark [class*="code"] button:hover,
+.dark [class*="code"] button:hover *,
+.dark [class*="Code"] button:hover,
+.dark [class*="Code"] button:hover *,
+.dark [class*="copy"]:hover,
+.dark [class*="copy"]:hover *,
+.dark [class*="Copy"]:hover,
+.dark [class*="Copy"]:hover * {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  fill: rgba(255, 255, 255, 0.8) !important;
+}
+
+.light pre,
+.light [class*="code-block"],
+.light [class*="codeblock"] {
+  background: #F5F5F5 !important;
+}
+
+/* Remove double borders on code group wrappers */
+[class*="CodeGroup"],
+[class*="code-group"],
+[class*="codegroup"] {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.dark [class*="CodeGroup"],
+.dark [class*="code-group"],
+.dark [class*="codegroup"] {
+  background: #111111 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.light [class*="CodeGroup"],
+.light [class*="code-group"],
+.light [class*="codegroup"] {
+  background: #F5F5F5 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ─── Tables: neutral ─── */
+.dark th {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.light th {
+  background: #F5F5F5;
+}
+
+/* ─── Sidebar active state — purple accent ─── */
+.dark [data-active="true"],
+.dark nav a[aria-current="page"] {
+  color: #8169FF !important;
+}
+
+/* ─── Scrollbar: subtle neutral ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #D4D4D4;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8169FF;
+}
+
+/* ─── Code block header bar ─── */
+.dark [class*="CodeGroup"] > :first-child,
+.dark [class*="code-group"] > :first-child,
+.dark [data-rehype-pretty-code-title],
+.dark [class*="codeblock"] > [class*="header"],
+.dark [class*="CodeBlock"] > [class*="header"],
+.dark pre > [class*="header"] {
+  background: #0A0A0A !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.light [class*="CodeGroup"] > :first-child,
+.light [class*="code-group"] > :first-child,
+.light [data-rehype-pretty-code-title],
+.light [class*="codeblock"] > [class*="header"],
+.light [class*="CodeBlock"] > [class*="header"],
+.light pre > [class*="header"] {
+  background: #EEEEEE !important;
+  border-bottom: 1px solid #E0E0E0 !important;
+}
+
+/* ─── Tab badges via ::after pseudo-elements ─── */
+nav a[href="/cli/overview"]::after,
+a[href="/cli"]::after {
+  content: "beta";
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: #F59E0B;
+  color: #fff;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
+nav a[href="/messaging-api/overview"]::after,
+a[href="/messaging-api"]::after {
+  content: "v1";
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: #22C55E;
+  color: #fff;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
+nav a[href="/agent-builder/overview"]::after,
+a[href="/agent-builder"]::after {
+  content: "upcoming";
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: #6366F1;
+  color: #fff;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}

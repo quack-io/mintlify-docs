@@ -1,0 +1,181 @@
+---
+title: "Errors"
+description: "Error codes and response format for the Messaging API."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#22C55E', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>v1</span>
+</div>
+
+The Messaging API uses standard HTTP status codes and returns consistent error objects across all endpoints.
+
+## Error Response Format
+
+### Authentication Error (401)
+
+Returned when the `x-network-api-key` header is missing or invalid.
+
+```json
+{
+  "detail": "Not authenticated"
+}
+```
+
+### Validation Error (422)
+
+Returned when required fields are missing or request parameters are invalid.
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "task_id"],
+      "msg": "field required",
+      "type": "value_error.missing"
+    }
+  ]
+}
+```
+
+<ResponseField name="detail" type="array">
+  List of validation error objects.
+
+  <Expandable title="validation error properties">
+    <ResponseField name="loc" type="array">
+      Path to the field that failed validation (e.g., `["body", "task_id"]`).
+    </ResponseField>
+    <ResponseField name="msg" type="string">
+      Human-readable error message.
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      Machine-readable error type.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Application Error (400)
+
+Returned for application-level errors such as content moderation. May include dynamic `extra_data` with contextual information.
+
+```json
+{
+  "status_code": 400,
+  "description": "Content moderation triggered",
+  "message": "The message was flagged by content moderation.",
+  "extra_data": {
+    "moderation_category": "harmful_content",
+    "flagged_text": "..."
+  }
+}
+```
+
+<ResponseField name="status_code" type="integer">
+  HTTP status code.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short error description.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Detailed error message.
+</ResponseField>
+
+<ResponseField name="extra_data" type="object">
+  Dynamic contextual data specific to the error. Structure varies by error type.
+</ResponseField>
+
+### Server Error (5xx)
+
+Returned for internal server errors. The response follows the same format as application errors:
+
+```json
+{
+  "status_code": 500,
+  "description": "Internal server error",
+  "message": "An unexpected error occurred.",
+  "extra_data": {}
+}
+```
+
+## Error Codes
+
+| Status | Description |
+| --- | --- |
+| `400` | Application error — may include `extra_data` with moderation or processing details |
+| `401` | Missing or invalid `x-network-api-key` header |
+| `422` | Validation error — invalid or missing request parameters |
+| `500` | Internal server error |
+
+## WebSocket Errors
+
+WebSocket connections use close codes instead of HTTP status codes:
+
+| Close Code | Meaning |
+| --- | --- |
+| `1008` | Authentication failure or policy violation |
+| `1011` | Internal server error |
+
+See the [WebSocket documentation](/messaging-api/websocket) for details on error handling in streaming connections.
+
+## Handling Errors
+
+<CodeGroup>
+```javascript Node.js
+const response = await fetch(
+  "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-network-api-key": "your-api-key",
+    },
+    body: JSON.stringify({
+      task_id: "68e78d0dc5a4b19a030d03d6",
+      text: "Hello",
+    }),
+  }
+);
+
+if (!response.ok) {
+  const error = await response.json();
+
+  if (response.status === 401) {
+    console.error("Authentication failed:", error.detail);
+  } else if (response.status === 422) {
+    error.detail.forEach((err) => {
+      console.error(`Validation: ${err.loc.join(".")} — ${err.msg}`);
+    });
+  } else {
+    console.error(`Error ${error.status_code}: ${error.message}`);
+  }
+}
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+    headers={
+        "Content-Type": "application/json",
+        "x-network-api-key": "your-api-key",
+    },
+    json={
+        "task_id": "68e78d0dc5a4b19a030d03d6",
+        "text": "Hello",
+    },
+)
+
+if not response.ok:
+    error = response.json()
+
+    if response.status_code == 401:
+        print(f"Authentication failed: {error['detail']}")
+    elif response.status_code == 422:
+        for err in error["detail"]:
+            print(f"Validation: {'.'.join(str(l) for l in err['loc'])} — {err['msg']}")
+    else:
+        print(f"Error {error['status_code']}: {error['message']}")
+```
+</CodeGroup>

@@ -1,0 +1,92 @@
+---
+title: "Authentication"
+description: "Authenticate your API requests with a network API key."
+---
+
+All Messaging API requests are authenticated using a **network API key** passed in the request header.
+
+## Network API Key
+
+Your network API key is provided during onboarding or can be obtained from your AUI account manager through the [AUI Console](https://console.aui.io).
+
+```bash
+x-network-api-key: your-network-api-key
+```
+
+## Required Headers
+
+Every request must include:
+
+| Header | Description | Example |
+| --- | --- | --- |
+| `x-network-api-key` | Your network API key | `your-network-api-key` |
+| `Content-Type` | Request body format (for POST requests) | `application/json` |
+
+```bash cURL
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/message" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: your-api-key" \
+  -d '{
+    "task_id": "68e78d0dc5a4b19a030d03d6",
+    "text": "Hello"
+  }'
+```
+
+## WebSocket Authentication
+
+For WebSocket connections, pass the API key as a query parameter:
+
+```
+wss://data-services.aui.io/api/ia-controller/api/v1/external/session?network_api_key=your-api-key
+```
+
+<Info>
+  Invalid credentials will close the WebSocket connection with close code `1008` (Policy Violation).
+</Info>
+
+## CLI Authentication
+
+The AUI CLI supports multiple authentication methods:
+
+```bash
+# Browser-based login (recommended)
+aui login
+
+# Email + OTP
+aui login --email user@example.com
+
+# Access token
+aui login --token your-access-token
+
+# API key
+aui login --api-key your-api-key
+```
+
+See [CLI Installation](/cli/installation) for full authentication details.
+
+## Error Responses
+
+Authentication failures return a `401` status:
+
+```json
+{
+  "detail": "Not authenticated"
+}
+```
+
+## Security Best Practices
+
+<Steps>
+  <Step title="Use environment variables">
+    Store API keys in environment variables, never in source code.
+    ```bash
+    export AUI_NETWORK_API_KEY="your-network-api-key"
+    ```
+  </Step>
+  <Step title="Keep keys server-side">
+    Never expose your network API key in client-side code. All API calls should be proxied through your backend.
+  </Step>
+  <Step title="Rotate keys when compromised">
+    If a key is exposed, contact your AUI account manager to rotate it immediately.
+  </Step>
+</Steps>

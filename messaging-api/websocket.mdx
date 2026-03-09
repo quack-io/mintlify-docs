@@ -1,0 +1,189 @@
+---
+title: "WebSocket"
+description: "Real-time streaming responses from AUI agents via WebSocket connection."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#22C55E', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>v1</span>
+  <span style={{ background: 'rgba(129,105,255,0.15)', color: '#8169FF', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Stable</span>
+</div>
+
+Connect via WebSocket for real-time streaming responses. Text is streamed token-by-token as the agent generates it, enabling live typing indicators and progressive UI updates.
+
+---
+
+## Connection
+
+### `wss://{base_url}/api/v1/external/session`
+
+| Region | WebSocket URL |
+| --- | --- |
+| GCP | `wss://data-services.aui.io/api/ia-controller/api/v1/external/session` |
+| Azure | `wss://azure.aui.io/api/ia-controller/api/v1/external/session` |
+
+#### Authentication
+
+Pass your network API key as a query parameter:
+
+```
+wss://data-services.aui.io/api/ia-controller/api/v1/external/session?network_api_key=your-api-key
+```
+
+<Warning>
+  Invalid credentials will close the connection immediately with WebSocket close code `1008` (Policy Violation).
+</Warning>
+
+---
+
+## Sending Messages
+
+Send JSON messages with the same structure as the REST API:
+
+```json
+{
+  "task_id": "68e78d0dc5a4b19a030d03d6",
+  "text": "I am looking for a built-in microwave with at least 20 liters capacity",
+  "context": {
+    "url": "https://example.com/products",
+    "lead_details": {
+      "customer_type": "residential",
+      "budget_range": "300-500"
+    }
+  }
+}
+```
+
+<ParamField body="task_id" type="string" required>
+  The task identifier for the conversation session.
+</ParamField>
+
+<ParamField body="text" type="string" required>
+  The message content to send to the agent.
+</ParamField>
+
+<ParamField body="context" type="object">
+  Optional supplementary context (same as the REST API).
+</ParamField>
+
+---
+
+## Response Events
+
+### Text Streaming
+
+As the agent generates its response, you receive incremental text updates:
+
+```json
+{
+  "event": "thread-message-text-content-updated",
+  "data": {
+    "text": "I found several built-in microwaves"
+  }
+}
+```
+
+Each event contains the cumulative text generated so far. Use this to update your UI progressively.
+
+### Final Message
+
+When the agent completes its response, you receive the full `ExternalTaskMessage` — the same object returned by the [REST endpoint](/messaging-api/send-message), including product recommendations and follow-up suggestions.
+
+---
+
+## Error Handling
+
+The server closes the connection on errors. Use the WebSocket close code to determine the error type:
+
+| Close Code | Meaning |
+| --- | --- |
+| `1008` | Authentication failure or application error (Policy Violation) |
+| `1011` | Internal server error |
+
+Error payloads include:
+
+```json
+{
+  "status_code": 401,
+  "description": "Not authenticated",
+  "message": "Invalid API key",
+  "extra_data": {}
+}
+```
+
+---
+
+## Code Examples
+
+<CodeGroup>
+```javascript Node.js
+const WebSocket = require("ws");
+
+const ws = new WebSocket(
+  "wss://data-services.aui.io/api/ia-controller/api/v1/external/session?network_api_key=your-api-key"
+);
+
+ws.on("open", () => {
+  ws.send(JSON.stringify({
+    task_id: "68e78d0dc5a4b19a030d03d6",
+    text: "I am looking for a built-in microwave with at least 20 liters capacity",
+  }));
+});
+
+ws.on("message", (data) => {
+  const event = JSON.parse(data);
+
+  if (event.event === "thread-message-text-content-updated") {
+    // Progressive text update — render in UI
+    process.stdout.write(`\r${event.data.text}`);
+  } else {
+    // Final message with full response
+    console.log("\n", event);
+  }
+});
+
+ws.on("close", (code, reason) => {
+  console.log(`Connection closed: ${code} ${reason}`);
+});
+
+ws.on("error", (err) => {
+  console.error("WebSocket error:", err.message);
+});
+```
+
+```python Python
+import asyncio
+import json
+import websockets
+
+async def stream_messages():
+    uri = "wss://data-services.aui.io/api/ia-controller/api/v1/external/session?network_api_key=your-api-key"
+
+    async with websockets.connect(uri) as ws:
+        await ws.send(json.dumps({
+            "task_id": "68e78d0dc5a4b19a030d03d6",
+            "text": "I am looking for a built-in microwave with at least 20 liters capacity",
+        }))
+
+        async for message in ws:
+            event = json.loads(message)
+
+            if event.get("event") == "thread-message-text-content-updated":
+                # Progressive text update
+                print(event["data"]["text"], end="\r")
+            else:
+                # Final message
+                print("\n", json.dumps(event, indent=2))
+
+asyncio.run(stream_messages())
+```
+</CodeGroup>
+
+---
+
+## Best Practices
+
+- **Reconnection logic** — Implement automatic reconnection with exponential backoff for dropped connections.
+- **Message queuing** — Queue outbound messages while reconnecting to avoid message loss.
+- **Error-first handling** — Check for error events before processing data events.
+- **Rate limiting** — Respect server-side rate limits to avoid connection termination.
+- **Context preservation** — Maintain the `task_id` across reconnections to continue the same conversation.

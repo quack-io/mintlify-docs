@@ -1,0 +1,119 @@
+---
+title: "Quickstart"
+description: "Send your first message to an AUI agent in under 5 minutes."
+---
+
+## 1. Get Your API Key
+
+Contact your AUI account manager or request access through the [AUI Console](https://console.aui.io) to receive your **network API key**.
+
+<Warning>
+  Keep your API key secure. Never expose it in client-side code or commit it to version control.
+</Warning>
+
+## 2. Create a Task
+
+A task represents a conversation session. Create one to get started:
+
+```bash cURL
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: your-api-key" \
+  -d '{"user_id": "user_123"}'
+```
+
+You'll receive a task ID and a welcome message from the agent:
+
+```json
+{
+  "id": "68e78d0dc5a4b19a030d03d6",
+  "user_id": "user_123",
+  "title": "New Conversation",
+  "welcome_message": "Hi! How can I help you today?",
+  "followup_suggestions": ["Show me your best sellers", "I need help choosing a product"]
+}
+```
+
+## 3. Send a Message
+
+Use the `task_id` from the previous step to send a message:
+
+<CodeGroup>
+```javascript Node.js
+const response = await fetch(
+  "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-network-api-key": "your-api-key",
+    },
+    body: JSON.stringify({
+      task_id: "68e78d0dc5a4b19a030d03d6",
+      text: "I am looking for a built-in microwave with at least 20 liters capacity",
+    }),
+  }
+);
+
+const message = await response.json();
+console.log(message.text);
+console.log(message.followup_suggestions);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+    headers={
+        "Content-Type": "application/json",
+        "x-network-api-key": "your-api-key",
+    },
+    json={
+        "task_id": "68e78d0dc5a4b19a030d03d6",
+        "text": "I am looking for a built-in microwave with at least 20 liters capacity",
+    },
+)
+
+message = response.json()
+print(message["text"])
+print(message["followup_suggestions"])
+```
+
+```bash cURL
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/message" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: your-api-key" \
+  -d '{
+    "task_id": "68e78d0dc5a4b19a030d03d6",
+    "text": "I am looking for a built-in microwave with at least 20 liters capacity"
+  }'
+```
+</CodeGroup>
+
+## 4. What Just Happened
+
+When you sent that message, AUI:
+
+1. **Parsed** the message using the neuro-symbolic engine — translating natural language into a structured interaction state
+2. **Evaluated** the symbolic layer — checking rules and policies before the LLM processes anything
+3. **Activated tools** — searching product catalogs, knowledge bases, or external APIs as needed
+4. **Generated** a contextual response grounded in real data
+5. **Returned** the response with product recommendations and follow-up suggestions
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Tasks API" icon="list-check" href="/messaging-api/tasks">
+    Manage conversation sessions — create, list, and retrieve message history.
+  </Card>
+  <Card title="WebSocket Streaming" icon="bolt" href="/messaging-api/websocket">
+    Connect via WebSocket for real-time, token-by-token streaming responses.
+  </Card>
+  <Card title="Explore the CLI" icon="terminal" href="/cli/overview">
+    Build and manage agents from your terminal with the AUI CLI.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn about API key management and security best practices.
+  </Card>
+</CardGroup>

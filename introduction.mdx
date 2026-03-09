@@ -1,0 +1,178 @@
+---
+title: "Overview"
+sidebarTitle: "Introduction"
+description: "Apollo-1: The neuro-symbolic foundation model that solves task-oriented conversational AI."
+---
+
+## Apollo-1: The Neuro-Symbolic Foundation Model
+
+Traditional language models rely on transformer architectures, which excel at pattern recognition and language generation. However — when it comes to agentic use cases, situations where the model needs to perform actions, make decisions, or interact with tools — transformer-based LLMs face significant challenges.
+
+**Apollo-1 is different.** By merging neural networks with symbolic reasoning, it offers complete steerability and unparalleled control for building production-grade AI agents.
+
+<CardGroup cols={3}>
+  <Card
+    title="Messaging API"
+    icon="message"
+    href="/messaging-api/overview"
+  >
+    Send and receive messages across channels. Build conversational experiences with full context management.
+  </Card>
+  <Card
+    title="Agent Builder API"
+    icon="robot"
+    href="/agent-builder/overview"
+  >
+    Create AI agents with tools, knowledge bases, and custom workflows. Define rules and guardrails declaratively.
+  </Card>
+  <Card
+    title="CLI"
+    icon="terminal"
+    href="/cli/overview"
+  >
+    Build and manage agents from your terminal. Local development, testing, and deployment in one tool.
+  </Card>
+</CardGroup>
+
+---
+
+## Why Transformer-Based LLMs Don't Make Good Agents
+
+Apollo-1's neuro-symbolic architecture solves the five core problems with using traditional LLMs as agents.
+
+<AccordionGroup>
+  <Accordion title="Transparency — A white-box model" icon="eye">
+    Apollo's neuro-symbolic architecture allows users to trace and understand every decision-making step the model takes. Each response is generated through a structured reasoning process that is accessible and interpretable.
+
+    - **Diagnosable**: Developers can identify, diagnose, and fix issues efficiently
+    - **Auditable**: Decisions provide a clear trail of how responses were generated — essential for compliance
+    - **Customizable**: Users can modify reasoning components without affecting the entire system
+  </Accordion>
+
+  <Accordion title="Controllability — An advanced instruction environment" icon="sliders">
+    All components — API integrations, conditional rules, policies, and tool-specific settings — are organized within a structured framework. Apollo allows precise control over its outputs.
+
+    - **Structured**: Rules and guidelines the model strictly adheres to during interactions
+    - **Selective**: At inference time, Apollo retrieves only the relevant instructions for the specific situation
+    - **Entity-aware**: Structured entity representations determine which instructions apply to each interaction
+  </Accordion>
+
+  <Accordion title="Predictability — A structured reasoning process" icon="diagram-project">
+    Apollo follows a deterministic, multi-step reasoning process for every interaction:
+
+    1. User input is translated into the **Structured Interaction State** — parsing natural language into a formal representation
+    2. Cross-references with predefined **rules and policies** to ensure compliance
+    3. Decides which **action** to take: answer, clarify, or initiate a process
+    4. Selects and activates **pre-configured tools** — executing multiple simultaneously if needed
+    5. **Verifies results** against expected outcomes with error checking and validation
+    6. Triggers **fallback mechanisms** if issues arise, ensuring smooth continuation
+    7. Only after all steps completes does Apollo **generate the final response** — accurate, contextual, and compliant
+  </Accordion>
+
+  <Accordion title="Tool Use — 100% successful tool activation" icon="plug">
+    Apollo activates tools based on context and intent — without ambiguity.
+
+    - **Tool-native**: 100% success rate in tool activation — eliminates API call failures
+    - **Unlimited tools**: Supports any number of tools through its structured handling framework
+    - **Grounded answers**: Returns responses rooted in real data sources instead of relying on training data
+    - **Tool-specific rules**: Detailed, per-tool guidelines enhance functionality and user experience
+    - **Seamless integration**: Processes tool outputs and integrates them into responses natively
+  </Accordion>
+
+  <Accordion title="Fine-Tuning — Continuous improvement via human feedback" icon="chart-line">
+    Apollo enables granular feedback on specific reasoning elements, allowing targeted improvements beyond conversation-level adjustments.
+
+    - **Granular feedback**: Target specific reasoning steps, not just overall conversations
+    - **Rapid adaptation**: Combines traditional fine-tuning with reinforcement learning for quick updates
+    - **Continuous improvement**: Regular updates prevent stagnation between major version releases
+    - **Cumulative learning**: Each version is better aligned than the previous one
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## The Neuro-Symbolic Advantage
+
+The neuro-symbolic approach bridges the gap between the flexibility of neural networks and the precision of symbolic logic.
+
+<CardGroup cols={2}>
+  <Card title="Explainability" icon="magnifying-glass">
+    Symbolic reasoning provides insight into the model's decision-making process. Users can trace how the model arrives at specific responses, enhancing trust and accountability.
+  </Card>
+  <Card title="Modularity" icon="cubes">
+    Components can be modified or replaced without affecting the entire system. This flexibility facilitates updates, customization, and scalability.
+  </Card>
+  <Card title="Rule Integration" icon="scale-balanced">
+    Explicit rules can be incorporated directly into the reasoning process. This ensures compliance with regulations, policies, and domain-specific requirements.
+  </Card>
+  <Card title="Data Efficiency" icon="database">
+    Symbolic components reduce the need for extensive datasets. By leveraging existing knowledge bases and rules, Apollo-1 performs effectively even with limited training data.
+  </Card>
+</CardGroup>
+
+---
+
+## Structured Interaction State
+
+At the heart of Apollo-1's capabilities lies the **Structured Interaction State** — a symbolic, parameterized representation of each interaction created by collecting and organizing sensory data. By converting unstructured inputs into a structured format, Apollo-1 achieves a higher level of understanding and precision.
+
+<CardGroup cols={3}>
+  <Card title="Human & Machine Readable" icon="file-code">
+    The structured representation is readable by both humans and software, facilitating transparency and ease of interpretation.
+  </Card>
+  <Card title="Captures Context" icon="brain">
+    Includes intents, entities, sentiments, and contextual information essential for accurate processing.
+  </Card>
+  <Card title="Enables Reasoning" icon="gears">
+    This structured state is the basis upon which rules, policies, and reasoning processes are applied.
+  </Card>
+</CardGroup>
+
+---
+
+## Apollo vs. Transformer-Based Agents
+
+| Feature | Transformer-Based Agents | Apollo-Based Agents |
+| --- | --- | --- |
+| **Transparency** | Black-box model with opaque reasoning | White-box model with transparent reasoning processes |
+| **Controllability** | System prompts are the primary control mechanism | Control levers available throughout the system |
+| **Predictability** | Outcomes are often unpredictable | Outcomes are nearly deterministic |
+| **Tool Use** | Struggles with consistently generating structured outputs | Tool-native with 100% success rate |
+| **Fine-Tuning** | Fine-tuning for agents is challenging | Supports continuous fine-tuning, even on fine-tuned models |
+
+---
+
+## Safety & Accuracy
+
+Combining generative and rule-based approaches minimizes the risks typically associated with AI outputs.
+
+<CardGroup cols={3}>
+  <Card title="Content Moderation" icon="shield">
+    Adheres to predefined rules to avoid generating inappropriate or harmful content.
+  </Card>
+  <Card title="Information Accuracy" icon="circle-check">
+    Provides consistent and accurate information, reducing misinformation.
+  </Card>
+  <Card title="Auditability" icon="clipboard-check">
+    The reasoning process can be reviewed and audited, meeting compliance and governance standards.
+  </Card>
+</CardGroup>
+
+---
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Get your first agent responding in under 5 minutes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how to authenticate your API requests.
+  </Card>
+  <Card title="SDKs" icon="code" href="/sdks">
+    Official client libraries for Node.js and Python.
+  </Card>
+  <Card title="Changelog" icon="clock-rotate-left" href="/changelog">
+    Latest updates and API changes.
+  </Card>
+</CardGroup>

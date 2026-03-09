@@ -1,0 +1,92 @@
+---
+title: "Messaging API"
+sidebarTitle: "Overview"
+description: "Send messages to AI agents, manage conversation tasks, and receive real-time streaming responses."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#22C55E', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>v1</span>
+  <span style={{ background: 'rgba(129,105,255,0.15)', color: '#8169FF', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Stable</span>
+</div>
+
+The Messaging API lets you programmatically send messages to AUI agents, manage conversation tasks, and receive responses — either synchronously via REST or streamed in real time via WebSocket.
+
+## Base URL
+
+```
+https://data-services.aui.io/api/ia-controller
+```
+
+Two regional deployments are available:
+
+| Region | Base URL |
+| --- | --- |
+| GCP | `https://data-services.aui.io/api/ia-controller` |
+| Azure | `https://azure.aui.io/api/ia-controller` |
+
+## Authentication
+
+All requests require the `x-network-api-key` header:
+
+```bash
+x-network-api-key: your-network-api-key
+```
+
+## Core concepts
+
+<CardGroup cols={2}>
+  <Card title="Tasks" icon="list-check">
+    A task represents a conversation session with an agent. Create a task to start a new conversation, then send messages within it.
+  </Card>
+  <Card title="Messages" icon="message">
+    Send a message to an agent within a task and receive the complete response, including product recommendations and follow-up suggestions.
+  </Card>
+  <Card title="WebSocket" icon="bolt">
+    Connect via WebSocket for real-time streaming responses. Text is streamed token-by-token as the agent generates it.
+  </Card>
+  <Card title="Errors" icon="circle-exclamation">
+    Consistent error format across all endpoints with status codes, descriptions, and dynamic contextual data.
+  </Card>
+</CardGroup>
+
+## How it works
+
+1. **Create a task** — `POST /api/v1/external/tasks` with a `user_id` to start a conversation session. You receive a task ID and a welcome message.
+2. **Send messages** — Use either the REST endpoint (`POST /api/v1/external/message`) for complete responses or connect via WebSocket (`wss://.../api/v1/external/session`) for real-time streaming.
+3. **Handle responses** — Responses include the agent's text, product recommendations (if applicable), and AI-generated follow-up suggestions.
+
+## Quick start
+
+```bash cURL
+# 1. Create a task
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: your-api-key" \
+  -d '{"user_id": "user_123"}'
+
+# 2. Send a message (use the task_id from step 1)
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/message" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: your-api-key" \
+  -d '{
+    "task_id": "68e78d0dc5a4b19a030d03d6",
+    "text": "I am looking for a built-in microwave with at least 20 liters capacity"
+  }'
+```
+
+## Explore the API
+
+<CardGroup cols={2}>
+  <Card title="Tasks" icon="list-check" href="/messaging-api/tasks">
+    Create tasks, list user tasks, and retrieve message history.
+  </Card>
+  <Card title="Messages" icon="paper-plane" href="/messaging-api/send-message">
+    Send messages and receive agent responses.
+  </Card>
+  <Card title="WebSocket" icon="bolt" href="/messaging-api/websocket">
+    Real-time streaming responses via WebSocket connection.
+  </Card>
+  <Card title="Errors" icon="circle-exclamation" href="/messaging-api/errors">
+    Error codes and response format.
+  </Card>
+</CardGroup>

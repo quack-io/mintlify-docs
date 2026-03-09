@@ -1,0 +1,131 @@
+---
+title: "SDKs & Libraries"
+sidebarTitle: "SDKs"
+description: "Client libraries and integration tools for the AUI platform."
+---
+
+## CLI — `aui-agent-builder`
+
+The official CLI for building, managing, and deploying AI agent configurations.
+
+```bash
+npm install -g aui-agent-builder
+```
+
+Full-featured local development workflow: import agents as JSON, edit in your IDE with schema autocomplete, validate, and push to the cloud.
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/cli/installation">
+    Install the CLI and authenticate.
+  </Card>
+  <Card title="Command Reference" icon="terminal" href="/cli/commands">
+    All 16 CLI commands.
+  </Card>
+</CardGroup>
+
+## REST API
+
+All Messaging API endpoints are accessible via standard HTTP requests. No SDK required — use any HTTP client in any language.
+
+<CodeGroup>
+```javascript Node.js (fetch)
+const response = await fetch(
+  "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-network-api-key": process.env.AUI_NETWORK_API_KEY,
+    },
+    body: JSON.stringify({
+      task_id: "68e78d0dc5a4b19a030d03d6",
+      text: "Hello, I need help finding a product",
+    }),
+  }
+);
+
+const message = await response.json();
+console.log(message.text);
+```
+
+```python Python (requests)
+import os
+import requests
+
+response = requests.post(
+    "https://data-services.aui.io/api/ia-controller/api/v1/external/message",
+    headers={
+        "Content-Type": "application/json",
+        "x-network-api-key": os.environ["AUI_NETWORK_API_KEY"],
+    },
+    json={
+        "task_id": "68e78d0dc5a4b19a030d03d6",
+        "text": "Hello, I need help finding a product",
+    },
+)
+
+message = response.json()
+print(message["text"])
+```
+
+```bash cURL
+curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/message" \
+  -H "Content-Type: application/json" \
+  -H "x-network-api-key: $AUI_NETWORK_API_KEY" \
+  -d '{
+    "task_id": "68e78d0dc5a4b19a030d03d6",
+    "text": "Hello, I need help finding a product"
+  }'
+```
+</CodeGroup>
+
+## WebSocket (Streaming)
+
+For real-time streaming responses, connect via WebSocket using any WebSocket library.
+
+<CodeGroup>
+```javascript Node.js (ws)
+const WebSocket = require("ws");
+
+const ws = new WebSocket(
+  `wss://data-services.aui.io/api/ia-controller/api/v1/external/session?network_api_key=${process.env.AUI_NETWORK_API_KEY}`
+);
+
+ws.on("open", () => {
+  ws.send(JSON.stringify({
+    task_id: "68e78d0dc5a4b19a030d03d6",
+    text: "I need help finding a product",
+  }));
+});
+
+ws.on("message", (data) => {
+  const event = JSON.parse(data);
+  if (event.event === "thread-message-text-content-updated") {
+    process.stdout.write(`\r${event.data.text}`);
+  }
+});
+```
+
+```python Python (websockets)
+import asyncio
+import json
+import os
+import websockets
+
+async def stream():
+    uri = f"wss://data-services.aui.io/api/ia-controller/api/v1/external/session?network_api_key={os.environ['AUI_NETWORK_API_KEY']}"
+    async with websockets.connect(uri) as ws:
+        await ws.send(json.dumps({
+            "task_id": "68e78d0dc5a4b19a030d03d6",
+            "text": "I need help finding a product",
+        }))
+        async for message in ws:
+            event = json.loads(message)
+            if event.get("event") == "thread-message-text-content-updated":
+                print(event["data"]["text"], end="\r")
+
+asyncio.run(stream())
+```
+</CodeGroup>
+
+See the [WebSocket documentation](/messaging-api/websocket) for full connection details and event types.

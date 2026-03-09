@@ -1,0 +1,150 @@
+---
+title: "Configuration"
+description: "Project structure, config files, and environment variables for the AUI Agent Builder CLI."
+---
+
+## Project Structure
+
+After running `aui import-agent` or `aui create-agent`, your project directory looks like this:
+
+```
+my-agent/
+├── agent.aui.json              # Agent identity, objective, guardrails, tone
+├── parameters.aui.json         # Data units (input/output definitions)
+├── entities.aui.json           # Groups of related parameters
+├── integrations.aui.json       # API, RAG, and MCP connections
+├── rules.aui.json              # Global behavioral rules
+├── tools/                      # Agent capabilities (one file per tool)
+│   ├── product_search.aui.json
+│   └── generative_ai.aui.json
+├── GUIDE.md                    # Step-by-step building guide
+├── .auirc                      # Project config (agent ID, account, env)
+├── .aui-schema/                # JSON schemas for validation
+│   └── aui.dschema.json
+└── .vscode/
+    └── settings.json           # Schema autocomplete for VSCode/Cursor
+```
+
+### File Reference
+
+| File | Purpose |
+| --- | --- |
+| `agent.aui.json` | Core agent configuration — name, objective, personality, guardrails, tone of voice |
+| `parameters.aui.json` | Defines data units the agent collects or outputs |
+| `entities.aui.json` | Groups related parameters into logical entities |
+| `integrations.aui.json` | External connections — APIs, RAG knowledge bases, MCP servers |
+| `rules.aui.json` | Global behavioral rules that govern agent behavior |
+| `tools/*.aui.json` | Individual tool definitions — each tool is a separate file |
+| `GUIDE.md` | Auto-generated step-by-step building guide |
+| `.auirc` | Project-level config linking to your account and agent |
+| `.aui-schema/` | JSON schemas for local validation and editor autocomplete |
+
+<Info>
+  VSCode and Cursor get automatic JSON schema autocomplete for `.aui.json` files via the `.vscode/settings.json` generated during import.
+</Info>
+
+---
+
+## Session
+
+Stored at `~/.aui/session.json` after login. Contains:
+
+- Auth token (JWT) and refresh token
+- User info (ID, email, name)
+- Organization ID and name
+- Account ID and name
+- Agent ID and name
+- Environment and API URL
+- Token expiry timestamp
+
+<Warning>
+  Do not commit `~/.aui/` to version control. It contains authentication tokens and API keys.
+</Warning>
+
+---
+
+## Project Config (.auirc)
+
+Created in your project directory by `aui import-agent` or `aui create-agent`:
+
+```json .auirc
+{
+  "agent_code": "my_agent",
+  "agent_id": "abc123",
+  "environment": "staging",
+  "account_id": "...",
+  "organization_id": "...",
+  "network_category_id": "...",
+  "network_api_key": "..."
+}
+```
+
+This file links your local project to a specific agent and account on the AUI platform.
+
+---
+
+## Environment Variables
+
+Environment variables override file-based configuration. Useful for CI/CD pipelines.
+
+| Variable | Description |
+| --- | --- |
+| `AUI_AUTH_TOKEN` | Skip login — use this JWT directly |
+| `AUI_API_URL` | Override API base URL |
+| `AUI_ENVIRONMENT` | Set environment (`staging`, `custom`, `production`) |
+| `AUI_ACCOUNT_ID` | Account ID |
+| `AUI_ORGANIZATION_ID` | Organization ID |
+| `AUI_AGENT_CODE` | Agent code |
+| `AUI_KBM_API_KEY` | RAG knowledge base API key |
+| `AUI_AGENT_TOOLS_API_KEY` | Agent Settings API key |
+| `AUI_API_WORKFLOW_KEY` | API Workflow key |
+
+```bash
+# Example: run a command against production without switching env
+AUI_ENVIRONMENT=production aui list-agents
+```
+
+---
+
+## Secure Key Files
+
+Additional credentials are stored as secure files (mode 600) in `~/.aui/`:
+
+| File | Purpose |
+| --- | --- |
+| `~/.aui/kbm-key` | RAG API key |
+| `~/.aui/agent-settings-key` | Agent Settings API key |
+| `~/.aui/api-workflow-key` | API Workflow key |
+
+---
+
+## Environments
+
+AUI supports three environments:
+
+| Environment | Description |
+| --- | --- |
+| `staging` | Development and testing |
+| `custom` | Custom environment |
+| `production` | Live production environment |
+
+Switch environments:
+
+```bash
+aui env staging
+aui env production
+aui env custom
+```
+
+The active environment is stored in `~/.aui/environment`.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Command Reference" icon="terminal" href="/cli/commands">
+    Full reference for all CLI commands.
+  </Card>
+  <Card title="Workflows" icon="route" href="/cli/workflows">
+    Common development workflows and patterns.
+  </Card>
+</CardGroup>

@@ -1,0 +1,94 @@
+---
+title: "AUI Agent Builder CLI"
+sidebarTitle: "Overview"
+description: "Build, manage, and deploy AI agent configurations from your terminal with a local-first workflow."
+---
+
+<div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+  <span style={{ background: '#F59E0B', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Beta</span>
+  <span style={{ background: 'rgba(129,105,255,0.15)', color: '#8169FF', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>v0.1.74</span>
+  <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>GA April 2026</span>
+</div>
+
+```bash
+npm install -g aui-agent-builder
+```
+
+AUI Agent Builder is a CLI tool for building, managing, and deploying AI agent configurations on the AUI platform. It enables a **local-first development workflow**: import agents as JSON files, edit them in your IDE with schema autocomplete, validate locally, and push changes back to the cloud.
+
+**Current version:** 0.1.74
+
+## Quick Start
+
+```bash
+# 1. Authenticate
+aui login
+
+# 2. Import an agent to your local machine
+aui import-agent
+
+# 3. Edit .aui.json files in your IDE (VSCode/Cursor get schema autocomplete)
+
+# 4. Validate your changes
+aui dvalidate
+
+# 5. Push changes to the cloud
+aui push
+```
+
+## Key Features
+
+<AccordionGroup>
+  <Accordion title="Local-First Development">
+    Import agent configs as `.aui.json` files. Edit them in VSCode or Cursor with full JSON schema autocomplete. No web UI required.
+  </Accordion>
+  <Accordion title="Schema Validation">
+    Validate agent configurations locally with `aui dvalidate` before pushing. Catches syntax errors, missing fields, and cross-reference issues.
+  </Accordion>
+  <Accordion title="Smart Push with Diffing">
+    `aui push` detects changes via git diff and sends only what changed — PATCH for modified fields, POST for new tools, PUT for upserts.
+  </Accordion>
+  <Accordion title="Interactive Chat Testing">
+    Use `aui chat` for real-time streaming conversations with your agent in the terminal. Or run `aui serve` for a web-based playground.
+  </Accordion>
+  <Accordion title="Multi-Environment Support">
+    Switch between staging, custom, and production environments with `aui env`. Test safely before deploying.
+  </Accordion>
+</AccordionGroup>
+
+## How It Works
+
+<Steps>
+  <Step title="Login">
+    Authenticate with browser login, email + OTP, or access token using `aui login`.
+  </Step>
+  <Step title="Import">
+    Pull an existing agent's configuration locally with `aui import-agent`, or scaffold a new one with `aui create-agent`.
+  </Step>
+  <Step title="Develop">
+    Edit `.aui.json` files in your IDE. Schema autocomplete works out of the box in VSCode and Cursor.
+  </Step>
+  <Step title="Validate">
+    Run `aui dvalidate` to check syntax, required fields, and cross-reference integrity.
+  </Step>
+  <Step title="Push">
+    Deploy changes with `aui push`. Use `--dry-run` to preview first.
+  </Step>
+</Steps>
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/cli/installation">
+    Install the CLI and authenticate with your AUI account.
+  </Card>
+  <Card title="Command Reference" icon="terminal" href="/cli/commands">
+    Full reference for all 16 CLI commands.
+  </Card>
+  <Card title="Configuration" icon="gear" href="/cli/configuration">
+    Project structure, config files, and environment variables.
+  </Card>
+  <Card title="Workflows" icon="route" href="/cli/workflows">
+    Common development workflows and chat commands.
+  </Card>
+</CardGroup>
