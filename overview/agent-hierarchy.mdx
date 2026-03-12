@@ -1,0 +1,33 @@
+---
+title: "Agent Hierarchy"
+sidebarTitle: "Agent Hierarchy"
+description: "Understanding Apollo-1's three-level organizational structure"
+---
+
+Apollo-1 organizes agents across three levels, providing a clear separation of scope and configuration.
+
+## Organization
+
+The top-level entity representing your company. An organization contains multiple accounts and provides the overarching identity for all agents within it.
+
+## Account
+
+A workspace for a team or project. Each account lives within an organization and houses multiple agents. Accounts allow teams to manage their own set of agents independently.
+
+## Agent
+
+An individual conversational AI with its own configuration, settings, entities, and tools. Each agent operates within an account and represents a specific use case or domain.
+
+```
+Organization
+├── Account A
+│   ├── Agent 1
+│   └── Agent 2
+└── Account B
+    ├── Agent 3
+    └── Agent 4
+```
+
+<Note>
+Entities and parameters are specific to the agent level, unless defined globally at the account or organization level.
+</Note>

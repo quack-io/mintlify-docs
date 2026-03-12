@@ -1,0 +1,58 @@
+---
+title: "The Truths Paradigm"
+sidebarTitle: "The Truths Paradigm"
+description: "A fundamentally different approach to building agents"
+---
+
+Apollo-1 introduces a fundamentally different approach. Rather than probabilistic LLM decisions or rigid step-by-step workflows, operators declare domain "truths" — statements about how the world works that the model uses to compute behavior from state.
+
+## Three Paradigms Compared
+
+| Approach | Decision-Making | Guarantee |
+|----------|----------------|-----------|
+| **LLM as Brain** | Probabilistic decision-making | Cannot guarantee constraints |
+| **Workflows** | Explicit branch coding | Inflexible and difficult to maintain |
+| **Apollo-1 Truths** | Declarative statements | State computation with deterministic application |
+
+## How Truths Work
+
+Rather than step-by-step instructions, operators declare what must be true:
+
+- "Block payment processing without explicit user confirmation"
+- "Require ID verification for refunds over $200"
+- "Block ticket cancellation unless passenger is Business Class and Platinum Elite"
+
+The model then:
+
+<Steps>
+  <Step title="Interpret">
+    Interprets user input using neural language understanding
+  </Step>
+  <Step title="Compute">
+    Computes explicit symbolic state from the conversation
+  </Step>
+  <Step title="Evaluate">
+    Evaluates which truths apply to the current state
+  </Step>
+  <Step title="Execute">
+    Executes actions deterministically based on the applicable truths
+  </Step>
+</Steps>
+
+## Key Benefits
+
+- **Composability** — Truths combine naturally without requiring explicit integration
+- **Maintainability** — Add, modify, or remove truths independently without cascading changes
+- **Flexibility without lost control** — Natural conversation with deterministic enforcement
+- **Auditability** — Every decision traces back to specific truths and state
+- **Separation of concerns** — Domain experts define truths; the model handles execution
+
+## Truth Conflict Resolution
+
+When multiple truths apply to the same entity, Apollo-1 resolves conflicts through per-entity evaluation and priority by strictness:
+
+1. **Block** — highest priority
+2. **Ask Question** — medium priority
+3. **Activate Tool** — lowest priority
+
+This ensures the most restrictive applicable truth always wins.

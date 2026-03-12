@@ -1,0 +1,41 @@
+---
+title: "The Control Problem"
+sidebarTitle: "The Control Problem"
+description: "Why current approaches fail to deliver reliable conversational AI"
+---
+
+Current approaches to building task-oriented agents fail because they force a tradeoff between control and flexibility. Every architecture separates these properties across incompatible systems.
+
+## Orchestration Frameworks
+
+Orchestration wraps LLMs in workflow systems — state machines, routing logic, branching conditions. The state machine provides control. The LLM provides flexibility.
+
+The brain isn't closed. It's scattered.
+
+The state machine has explicit logic you can read. But it's fragmented across hundreds of branches, coded per-workflow, per-tool, per-condition. These systems don't share understanding. When a user asks an unexpected question mid-flow, either the rigid orchestration breaks, or you hand off to the LLM — at which point you're back to a closed brain. Control and flexibility live in separate systems. You have access to part of the brain, part of the time.
+
+Improvement means more branches. More branches means more complexity. More complexity means more fragility. The brain gets harder to access as it grows.
+
+## Function-Calling LLM Agents
+
+Function-calling agents give an LLM access to tools and let it decide when to call them. Flexible conversation. Natural handling of unexpected inputs.
+
+But the brain is closed.
+
+The LLM is still the decision-maker. When it makes a decision, it samples from a probability distribution over tokens. It doesn't compute from explicit state. It doesn't evaluate constraints against a symbolic representation. You can make unwanted behaviors less likely. You cannot make them impossible. The agent might process a refund without verification, skip confirmation, or invoke tools with incorrect parameters.
+
+This is not a temporary limitation. A transformer generates outputs by sampling from a probability distribution. That is the mechanism. No amount of scaling changes it.
+
+## Stateful Runtimes
+
+The newest approach — including stateful runtime environments — adds persistent state management around LLM agents. Memory carries forward. Tool state persists. Permission boundaries hold across steps.
+
+This is better infrastructure around a closed brain. The LLM is still the decision-maker. The state is managed around it, not within it. Guardrails check what the model decided after it decides — they don't prevent the decision from being made.
+
+This is neural and symbolic: two separate systems, layered. Not neuro-symbolic: one system, unified.
+
+## The Solution
+
+These architectures can't open the brain because there's no brain to open. The LLM has weights — not a structured decision process you can inspect or modify. The orchestration framework has a flowchart — explicit but fragmented. The stateful runtime has infrastructure — but the thing making decisions is still a black box at the center.
+
+The solution requires unified architecture where control and flexibility aren't separate systems trading off, but unified properties of one model.

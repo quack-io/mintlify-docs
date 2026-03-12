@@ -1,0 +1,77 @@
+---
+title: "Key Concepts"
+sidebarTitle: "Key Concepts"
+description: "Foundational concepts that form Apollo-1's symbolic language"
+---
+
+Apollo-1's symbolic reasoning operates on four foundational concepts: entities, parameters, tools, and constraints. Together, they form the structured language through which agents understand and act on the world.
+
+## Entities
+
+Entities are the structured objects in your domain — the "nouns" of your agent's world. Examples include:
+
+- **User Profile** — customer identity and account information
+- **Transactions** — payment and purchase records
+- **Credit Cards** — financial instruments and their attributes
+- **Products** — items or services available
+
+Entities are automatically populated from API responses or can be manually defined.
+
+## Parameters
+
+Parameters are entity attributes — the "adjectives" that describe them. Each parameter includes:
+
+- **Name** — identifier for the parameter
+- **Type** — string, number, date, enum, or boolean
+- **Description** — what the parameter represents
+- **Value** — current or expected value
+- **Use** — input, output, or both
+
+### Operators by Type
+
+Available operators vary by parameter type:
+
+| Type | Operators |
+|------|-----------|
+| **String** | Is, Is not, Contains, Has any value, About, Does not have any value |
+| **Number** | More than, Less than, Between, Equals, Has any value |
+| **Enum** | Is, Is not, Has any value, Is empty |
+| **Date** | Before, After, Between, Has any value, Is, Is not |
+| **Boolean** | Is true, Is false |
+
+## Tools
+
+Tools are containers of logic that perform specific functions. Each tool encompasses:
+
+- **Goal** — what the tool is designed to achieve
+- **Activation logic** — conditions under which the tool becomes available
+- **Required information** — parameters needed before execution
+- **Integrations** — external API connections the tool uses
+- **Constraints** — rules governing the tool's behavior
+- **Response configuration** — how results are presented to the user
+
+## Constraints
+
+Constraints are WHEN/THEN rules that enforce business policies at the architectural level. There are three types:
+
+### Policy Constraints
+
+Business rules that block or modify behavior based on state.
+
+> "Block disputes for transactions older than 8 days"
+
+### Confirmation Constraints
+
+Rules requiring explicit user consent before proceeding.
+
+> "Ask for confirmation before processing any payment"
+
+### Authentication Constraints
+
+Requirements for identity verification before sensitive operations.
+
+> "Require ID verification for refunds over $200"
+
+<Note>
+Unlike instructions an LLM "tries" to follow, constraints are enforced at the architectural level. Once state is correctly interpreted, constraint enforcement is deterministic.
+</Note>

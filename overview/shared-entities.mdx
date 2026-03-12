@@ -1,0 +1,51 @@
+---
+title: "Shared Entities & Parameters"
+sidebarTitle: "Shared Entities & Parameters"
+description: "Your agent's ontology — the structured vocabulary available across all tools"
+---
+
+The Shared Entities section represents your agent's ontology — the structured vocabulary of entities and parameters available across all tools. This is where you define the common objects and attributes that your agent understands and operates on.
+
+## Entities
+
+Entities are the structured domain objects your agent works with. They define the "nouns" of your agent's world and are reusable across all tools.
+
+Common examples:
+
+- **User Profile** — customer identity, preferences, and account details
+- **Transactions** — payment records, amounts, dates, and statuses
+- **Credit Cards** — card details, limits, and states
+- **Products** — items, services, pricing, and availability
+
+Entities are automatically populated from API responses, ensuring your agent always works with current data.
+
+## Parameters
+
+Parameters are the attributes of entities — the properties that describe and differentiate them. Each parameter has:
+
+| Property | Description |
+|----------|-------------|
+| **Name** | Identifier for the parameter |
+| **Type** | Data type: string, number, date, enum, or boolean |
+| **Description** | What the parameter represents |
+| **Value** | Current or expected value |
+| **Use** | Designation as input, output, or both |
+
+The parameter type determines which operators are available for use in constraints and activation logic:
+
+- **String** — Is, Is not, Contains, Has any value, About, Does not have any value
+- **Number** — More than, Less than, Between, Equals, Has any value
+- **Enum** — Is, Is not, Has any value, Is empty
+- **Date** — Before, After, Between, Has any value, Is, Is not
+- **Boolean** — Is true, Is false
+
+## How Shared Entities Are Used
+
+Shared entities and parameters are referenced throughout your agent's configuration:
+
+- **Tools** use them to define required information and activation logic
+- **Constraints** reference them in WHEN conditions to evaluate state
+- **Integrations** map API response fields to entity parameters
+- **Responses** use them to present dynamic information to users
+
+By defining entities at the shared level, you ensure consistency across all tools and avoid duplication.
