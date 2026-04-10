@@ -1,23 +1,52 @@
 ---
 title: "What is Apollo-1?"
 sidebarTitle: "What is Apollo-1?"
-description: "Understanding the first neuro-symbolic foundation model for task-oriented agents"
+description: "The first foundation model for neuro-symbolic agents"
 ---
 
-Apollo-1 is the first neuro-symbolic foundation model designed specifically for task-oriented conversational agents. It combines neural networks' conversational fluency with symbolic reasoning's reliability, enabling agents that converse naturally while act deterministically.
+Apollo-1 is the first foundation model for neuro-symbolic agents. It is not a language model adapted for reasoning, and not an orchestration layer around existing models — it is a new foundation, built from the ground up on neuro-symbolic architecture.
 
-## Two Types of Agents
+Agents built on Apollo-1 have two sides. A **frontend** that converses fluently with users and enforces business logic formally. A **backend** where the entity teaches the agent how to act, asks it why it did something, and evolves its behavior in plain English. Because the reasoning is symbolic, the same rules the engine enforces at runtime can be read and edited by the people who own the policies — not only by engineers.
+
+<Card
+  title="Read the full announcement"
+  icon="newspaper"
+  href="https://www.aui.io/resources/beyond-generative-ai/"
+>
+  Beyond Generative AI — Apollo-1: The Foundation Model for Neuro-Symbolic Agents
+</Card>
+
+## Two Kinds of Agent
 
 Two different things are emerging under the name "agent."
 
-**Open-ended agents** work for users. Coding assistants, computer-use agents, personal AI. The user is the principal. If the agent interprets intent slightly differently each time, that's fine — the user is in the loop and will correct it. Flexibility is the point.
+**Open-ended agents** work for users. Coding assistants, computer-use agents, personal AI. You're the principal. If the agent interprets your intent slightly differently each time, that's fine. You're in the loop. You'll correct it. Flexibility is the point.
 
-**Task-oriented agents** work on behalf of organizations. An airline's booking agent. A bank's support agent. An insurer's claims agent. A dental clinic's scheduling assistant. A SaaS company's onboarding flow. These agents serve users, but they represent the organization. The organization is the principal.
+**Task-oriented agents** work on behalf of entities. An airline's booking agent. A bank's support agent. An insurer's claims agent. These agents serve users, but they represent the entity. The entity is the principal — the one whose policies must be enforced.
 
-These agents manage conversations that run the economy: booking flights, processing payments, managing claims, executing trades. They require both behavioral certainty and conversational flexibility.
+Task-oriented agents need logical reasoning: the ability to evaluate conditions against state and produce guaranteed outcomes. The ticket won't be cancelled unless the passenger is Business Class and Platinum Elite. The payment won't process without explicit confirmation. The refund won't be issued if required documentation is missing.
 
-The organization could be a Fortune 500 or a five-person company. It doesn't matter. What matters is that when the agent gets something wrong, there's no user in the loop to catch it. Money moves. Appointments break. Policies are violated. The agent is the loop.
+These aren't preferences. They're requirements that determine whether AI can be trusted with interactions involving real money, real appointments, and real consequences.
 
-So the organization needs more than an agent that works. It needs access to how the agent thinks — so it can direct it, inspect it, debug it, and improve it. It needs an agent whose brain is open.
+But task-oriented agents also need flexibility. Users don't follow scripts. They ask unexpected questions, change their mind, go off on tangents. The agent has to handle real conversation while enforcing real logic.
 
-This combination — unified control and flexibility — is the hard problem that Apollo-1 solves.
+## The Hard Problem
+
+That combination is the hard problem. Task-oriented agents need two kinds of reasoning working together:
+
+- **Neural reasoning** — understanding language, handling ambiguity, maintaining fluid conversation.
+- **Logical reasoning** — evaluating conditions against state, enforcing specific outcomes, holding regardless of how the user phrases the request.
+
+Generative AI gave us agents that work on behalf of users. Apollo-1 is built for agents that work reliably on behalf of entities.
+
+## Generation and Enforcement in One Pass
+
+In Apollo-1, the neural and symbolic components operate together on the same representation in the same computational loop: interpreting language, maintaining state, evaluating logic, and generating responses as one integrated process. The neural components handle conversation. The symbolic components handle logical reasoning. Both are native to the architecture, not glued on.
+
+When a user asks about cancellation policy mid-payment, the neural side understands the question naturally while the symbolic side maintains the payment flow. State is explicit, not inferred from context. The logic "don't process payment without confirmation" holds absolutely. No branch was coded for this. No handoff occurred.
+
+Because the reasoning is neuro-symbolic, it's white-box. Every decision is traceable and auditable — and because the symbolic structures live in real files, they're addressable in language.
+
+## Universal by Design
+
+Apollo-1 is domain-agnostic and use-case-agnostic. The same model powers auto repair scheduling, insurance claims, retail support, healthcare navigation, and financial services — without rebuilding logic per workflow or manual ontology creation. The symbolic structures (intents, logic, parameters, execution semantics) are universal primitives. This is what makes Apollo-1 a foundation model: not scale, but representational generality. Same model, different system prompt.
