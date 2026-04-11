@@ -72,15 +72,6 @@
       "pages": [
         "introduction",
         {
-          "group": "Understanding Apollo-1",
-          "pages": [
-            "overview/what-is-apollo",
-            "overview/control-problem",
-            "overview/truths-paradigm",
-            "overview/key-concepts"
-          ]
-        },
-        {
           "group": "Building Agents",
           "pages": [
             "overview/agent-hierarchy",
