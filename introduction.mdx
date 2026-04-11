@@ -4,13 +4,6 @@ sidebarTitle: "Introduction"
 description: "A new foundation for agents that act on behalf of an entity — not a user."
 ---
 
-<Frame>
-  <img
-    src="/images/diagram.png"
-    alt="Apollo-1 neuro-symbolic architecture diagram"
-  />
-</Frame>
-
 <Card
   title="Beyond Generative AI — Read the Apollo-1 announcement"
   icon="newspaper"
@@ -133,6 +126,13 @@ Apollo-1 is domain-agnostic and use-case-agnostic. The same model powers auto re
 Apollo-1 achieves generalization through structure–content separation. Novel inputs are approximated to universal states at inference. The Neuro-Symbolic Reasoner operates on symbolic structures (intents, logic, parameters, actions) that remain constant across domains. Neural modules handle content: perceiving input, processing tool responses, incorporating domain knowledge. Symbolic modules handle structure: state, logic, execution.
 
 **Architecture: encoder, stateful reasoning loop, decoder.**
+
+<Frame>
+  <img
+    src="/images/diagram.png"
+    alt="Apollo-1 neuro-symbolic architecture diagram"
+  />
+</Frame>
 
 <Steps>
   <Step title="Domain-Agnostic Encoder">
