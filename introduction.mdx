@@ -4,10 +4,11 @@ sidebarTitle: "Introduction"
 description: "A new foundation for agents that act on behalf of an entity — not a user."
 ---
 
-*Pending Release · Authors: Ohad Elhelo, Ori Cohen, Co-Founders*
-
 <Frame>
-  <img src="/images/diagram.png" alt="Apollo-1 neuro-symbolic architecture diagram" />
+  <img
+    src="/images/diagram.png"
+    alt="Apollo-1 neuro-symbolic architecture diagram"
+  />
 </Frame>
 
 <Card
@@ -31,30 +32,6 @@ description: "A new foundation for agents that act on behalf of an entity — no
 9. [What Apollo-1 Isn't For](#09-what-apollo-1-isn-t-for)
 10. [General Availability](#10-general-availability)
 11. [Conclusion](#11-conclusion)
-
-<CardGroup cols={3}>
-  <Card
-    title="Messaging API"
-    icon="message"
-    href="/messaging-api/overview"
-  >
-    Send messages to AI agents and receive responses via REST or WebSocket streaming.
-  </Card>
-  <Card
-    title="Agent Builder API"
-    icon="robot"
-    href="/agent-builder/overview"
-  >
-    Create and configure AI agents with tools, knowledge bases, rules, and integrations.
-  </Card>
-  <Card
-    title="CLI"
-    icon="terminal"
-    href="/cli/overview"
-  >
-    Build and manage agents from your terminal. Local-first development workflow.
-  </Card>
-</CardGroup>
 
 ---
 
@@ -159,17 +136,17 @@ Apollo-1 achieves generalization through structure–content separation. Novel i
 
 <Steps>
   <Step title="Domain-Agnostic Encoder">
-    Translates natural language into symbolic state using both procedural and descriptive knowledge.
+    Translates natural language into symbolic state using both procedural and
+    descriptive knowledge.
   </Step>
   <Step title="Neuro-Symbolic State Machine">
-    Maintains symbolic state across the stateful reasoning loop, which iterates until turn completion.
+    Maintains symbolic state across the stateful reasoning loop, which iterates
+    until turn completion.
   </Step>
   <Step title="Symbolic Reasoning Engine">
     Computes next actions from state.
   </Step>
-  <Step title="Neuro-Symbolic Planner">
-    Creates executable plans.
-  </Step>
+  <Step title="Neuro-Symbolic Planner">Creates executable plans.</Step>
   <Step title="Domain-Agnostic Decoder">
     Generates natural language from final state.
   </Step>
@@ -179,9 +156,7 @@ The symbolic state represents both procedural progress (what state we're in) and
 
 The Symbolic Reasoning Engine is a formal, rule-based engine, built on the procedural logic learned from years of encoding millions of multi-turn task-oriented conversations with human agents, ranked by a reputation system based on peer feedback.
 
-<Note>
-Augmented Intelligence (AUI) Inc. Patents Pending.
-</Note>
+<Note>Augmented Intelligence (AUI) Inc. Patents Pending.</Note>
 
 ## 07. Agent Frontend: Formal Enforcement
 
@@ -249,7 +224,7 @@ Apollo-1 dissolves it, for a structural reason. The same property that lets the 
 
 The Apollo-1 Playground exposes the agent backend as a second model with read-write access to the agent's symbolic structures. You talk to it in natural language. It reasons over the same substrate the runtime engine reasons over. It can:
 
-- **Explain decisions** by reference to the actual symbolic trace — not a post-hoc rationalization. *Why did you block that?* has a literal answer: this rule, this predicate, this state.
+- **Explain decisions** by reference to the actual symbolic trace — not a post-hoc rationalization. _Why did you block that?_ has a literal answer: this rule, this predicate, this state.
 - **Locate rules** by description. You don't need to know the file or the schema, just the policy.
 - **Compile intent into formal logic** and apply it as a diff against the agent's configuration.
 - **Evaluate changes** against other scenarios and edge cases before pushing live.
@@ -259,11 +234,11 @@ The runtime engine and the backend read the same files. Enforcement and editing 
 
 ### An Example
 
-We tested both sides against the Credit Card Dispute agent, configured with the policy *"block disputes for transactions older than 8 days."*
+We tested both sides against the Credit Card Dispute agent, configured with the policy _"block disputes for transactions older than 8 days."_
 
 **Frontend — Enforcement.** The user asks to dispute a Grocery Store charge from 9 days ago. The agent pulls the user record, fetches the transaction history, and refuses: the charge is more than 8 days old. The reasoning trace shows what happened: the planner selected Create Dispute and populated the parameters. Before the call could execute, the Symbolic Reasoning Engine evaluated the policy constraint against the current state. The predicate `today - txn.date <= 8 days` returned false. The block was logged, and the tool call did not happen. The agent talks like an LLM and refuses like a compiler.
 
-**Backend — Editing.** In the agent backend we typed: *"Change the dispute blocking rule from 8 days to 3 days."* The backend located the existing rule, produced a diff against `rules.aui.json`, updated the user-facing explanation so the agent's spoken refusal would match the new threshold, and pushed the change live. Both edits land in the same place because the rule and its explanation are the same symbolic object.
+**Backend — Editing.** In the agent backend we typed: _"Change the dispute blocking rule from 8 days to 3 days."_ The backend located the existing rule, produced a diff against `rules.aui.json`, updated the user-facing explanation so the agent's spoken refusal would match the new threshold, and pushed the change live. Both edits land in the same place because the rule and its explanation are the same symbolic object.
 
 **Frontend — Verification.** In a fresh conversation, the agent refused to dispute a charge from 4 days ago — disputable under the old rule, blocked under the new one. Same trace shape. New predicate, new threshold. The behavior moved with the rule, by construction, because the behavior is the rule.
 
@@ -320,9 +295,6 @@ That's what comes after the transformer. Not a bigger language model. A differen
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="bolt" href="/quickstart">
     Understand the products and send your first message.
-  </Card>
-  <Card title="Authentication" icon="key" href="/messaging-api/authentication">
-    Learn how to authenticate your API requests.
   </Card>
   <Card title="Changelog" icon="clock-rotate-left" href="/changelog">
     Latest updates and API changes.

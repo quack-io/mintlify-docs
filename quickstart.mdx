@@ -8,23 +8,34 @@ description: "Understand AUI's three products and start building in minutes."
 AUI provides three products for building and integrating AI agents:
 
 <CardGroup cols={3}>
-  <Card title="Messaging API" icon="message" href="/messaging-api/overview">
-    **Integrate agents into your app.** Send messages to AUI agents via REST or WebSocket and receive responses with product recommendations, follow-up suggestions, and streaming text. Use this to embed AI conversations into your website, app, or backend.
+  <Card
+    title="Messaging API"
+    icon="message"
+    href="/messaging-api/overview"
+  >
+    Integrate AI agents into your product. Send messages via REST or WebSocket and receive structured responses, recommendations, and streaming outputs — ready for web, mobile, or backend use.
   </Card>
-  <Card title="Agent Builder API" icon="robot" href="/agent-builder/overview">
-    **Create and configure agents programmatically.** Define what your agent knows, what tools it can use, and how it behaves — all through a REST API. Set rules, guardrails, parameters, and knowledge bases.
-  </Card>
-  <Card title="CLI" icon="terminal" href="/cli/overview">
-    **Build agents from your terminal.** Import agent configs as JSON files, edit in your IDE with schema autocomplete, validate locally, and push changes to the cloud. A local-first development workflow.
+
+<Card title="Agent Builder API" icon="robot" href="/agent-builder/overview">
+  Programmatically create and manage agents. Define knowledge, tools, behavior,
+  and guardrails through a simple API — fully customizable and scalable.
+</Card>
+
+  <Card
+    title="CLI"
+    icon="terminal"
+    href="/cli/overview"
+  >
+    Develop agents locally with a CLI-first workflow. Edit JSON configs with schema support, validate instantly, and deploy to the cloud with a single command.
   </Card>
 </CardGroup>
 
-| | Messaging API | Agent Builder API | CLI |
-| --- | --- | --- | --- |
-| **Purpose** | Send & receive messages | Create & configure agents | Develop & deploy agents |
-| **Interface** | REST + WebSocket | REST | Terminal |
-| **Status** | v1 — Stable | Upcoming — Mid April 2026 | Beta — GA April 2026 |
-| **Best for** | App integration | Automation & CI/CD | Day-to-day development |
+|               | Messaging API           | Agent Builder API         | CLI                     |
+| ------------- | ----------------------- | ------------------------- | ----------------------- |
+| **Purpose**   | Send & receive messages | Create & configure agents | Develop & deploy agents |
+| **Interface** | REST + WebSocket        | REST                      | Terminal                |
+| **Status**    | v1 — Stable             | Upcoming — Mid April 2026 | Beta — GA April 2026    |
+| **Best for**  | App integration         | Automation & CI/CD        | Day-to-day development  |
 
 ---
 
@@ -54,6 +65,7 @@ The fastest way to experience AUI is through the [Playground](https://playground
         "text": "I need help finding a product"
       }'
     ```
+
   </Step>
 </Steps>
 
