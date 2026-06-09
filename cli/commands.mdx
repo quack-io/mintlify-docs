@@ -15,15 +15,23 @@ description: "Complete reference for every AUI Agent Builder CLI command."
 | [`aui list-agents`](#aui-list-agents) | `aui ls` | Quick table of all agents |
 | [`aui account`](#aui-account) | `aui accounts` | Manage accounts |
 | [`aui import-agent`](#aui-import-agent) | `aui import` | Download agent config locally |
-| [`aui create-agent`](#aui-create-agent) | | Scaffold a new agent project |
 | [`aui push`](#aui-push) | | Upload local changes to backend |
+| [`aui pull`](#aui-pull) | | Pull latest agent files from backend |
 | [`aui diff`](#aui-diff) | | Compare agent configurations |
-| [`aui dvalidate`](#aui-dvalidate) | | Validate .aui.json files |
+| [`aui validate`](#validate) | | Validate .aui.json files |
 | [`aui pull-schema`](#aui-pull-schema) | | Fetch latest domain schemas |
 | [`aui chat`](#aui-chat) | | Interactive terminal chat |
 | [`aui serve`](#aui-serve) | | Web-based chat playground |
+| **Runtime Messaging** | | |
+| [`aui apollo create-thread`](#aui-apollo-create-thread) | | Start a conversation thread |
+| [`aui apollo send-message`](#aui-apollo-send-message) | | Send a message and get reply |
+| [`aui apollo rerun`](#aui-apollo-rerun) | | Regenerate a previous interaction |
+| [`aui apollo trace`](#aui-apollo-trace) | | Fetch interaction traces |
+| **Version Management** | | |
+| [`aui version`](#aui-version) | | Manage agent versions |
+| **Integrations** | | |
+| [`aui integration`](#aui-integration) | | Manage MCP and Composio integrations |
 | [`aui rag`](#aui-rag) | | Manage knowledge bases |
-| [`aui add-integration`](#aui-add-integration) | | Add integration to agent |
 
 ---
 
@@ -202,13 +210,13 @@ description: "Complete reference for every AUI Agent Builder CLI command."
     ```
   </Accordion>
 
-  <Accordion title="aui dvalidate">
+  <Accordion title="aui validate">
     Validate `.aui.json` files against domain schemas.
 
     ```bash
-    aui dvalidate                    # Validate all files in current directory
-    aui dvalidate ./agent.aui.json   # Validate a specific file
-    aui dvalidate --verbose          # Show detailed validation output
+    aui validate                    # Validate all files in current directory
+    aui validate ./agent.aui.json   # Validate a specific file
+    aui validate --verbose          # Show detailed validation output
     ```
 
     | Option | Description |
@@ -278,6 +286,173 @@ description: "Complete reference for every AUI Agent Builder CLI command."
     | --- | --- |
     | `--port <number>` | Port to run the server on (default: 3000) |
     | `--no-open` | Don't auto-open the browser |
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Runtime Messaging — Apollo
+
+<AccordionGroup>
+  <Accordion title="aui apollo create-thread">
+    Start a new conversation thread with an agent.
+
+    ```bash
+    aui apollo create-thread
+    aui apollo create-thread --agent-id <id>
+    aui apollo create-thread --user-id <id>
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--agent-id <id>` | Agent to start conversation with (defaults to current agent) |
+    | `--user-id <id>` | User identifier (defaults to logged-in user) |
+    | `--task-origin-type <type>` | Origin type (default: `web-widget`) |
+    | `--version-id <id>` | Pin to a specific draft version |
+    | `--version-tag <tag>` | Pin to a specific revision tag |
+    | `--json` | Output JSON format |
+
+    Returns a task ID that you use for sending messages.
+  </Accordion>
+
+  <Accordion title="aui apollo send-message">
+    Send a message to an agent and get a reply. Forwards your local agent files by default.
+
+    ```bash
+    aui apollo send-message --task-id <id> --text "Hello"
+    aui apollo send-message --task-id <id> --text "Hello" --no-bundle
+    aui apollo send-message --task-id <id> --text "Hello" --no-include-trace
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--task-id <id>` | **Required.** The conversation thread ID |
+    | `--text "<message>"` | **Required.** The message to send |
+    | `--no-bundle` | Don't forward local agent files (use stored config) |
+    | `--no-include-trace` | Don't include trace info in response |
+    | `--agent-id <id>` | Agent to check (defaults to current agent) |
+    | `--path <dir>` | Read agent files from another folder |
+    | `--json` | Output JSON format |
+
+    <Info>
+      By default, your local `.aui.json` files are validated and forwarded to the runtime so the reply reflects your latest edits. Use `--no-bundle` to skip this and use the agent's stored configuration instead.
+    </Info>
+  </Accordion>
+
+  <Accordion title="aui apollo rerun">
+    Regenerate a previous interaction with edited text. Forwards your local agent files by default.
+
+    ```bash
+    aui apollo rerun --task-id <id> --interaction-id <id> --text "Edited message"
+    aui apollo rerun --task-id <id> --interaction-id <id> --text "Edited" --no-bundle
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--task-id <id>` | **Required.** The conversation thread ID |
+    | `--interaction-id <id>` | **Required.** Which message to rerun |
+    | `--text "<message>"` | **Required.** The message to replay |
+    | `--no-bundle` | Don't forward local agent files |
+    | `--no-include-trace` | Don't include trace info in response |
+    | `--version-id <id>` | Pin to a specific version |
+    | `--version-tag <tag>` | Pin to a specific revision tag |
+    | `--agent-id <id>` | Agent to check |
+    | `--path <dir>` | Read agent files from another folder |
+    | `--json` | Output JSON format |
+
+    Returns a new regenerated task ID and the agent's reply.
+  </Accordion>
+
+  <Accordion title="aui apollo trace">
+    Fetch interaction traces for a conversation thread. Always outputs JSON.
+
+    ```bash
+    aui apollo trace --task-id <id>                              # All traces
+    aui apollo trace --task-id <id> --interaction-id <id>        # Single trace
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--task-id <id>` | **Required.** The conversation thread to inspect |
+    | `--interaction-id <id>` | Fetch a single interaction trace instead of all |
+    | `--agent-id <id>` | Agent to check (defaults to current agent) |
+
+    <Warning>
+      This command always emits JSON output. There is no human-rendered (Ink) output mode.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Version Management
+
+<AccordionGroup>
+  <Accordion title="aui version">
+    Interactive version menu for managing agent versions.
+
+    ```bash
+    aui version                    # Interactive menu
+    aui version list               # List all versions
+    aui version create             # Create new draft version
+    aui version publish [id]       # Publish a draft (locks permanently)
+    aui version activate [id]      # Activate a published version as live
+    aui version archive [id]       # Archive a published version
+    aui version get [id]           # View version details
+    aui version update [id]        # Update label, tags, or notes
+    ```
+
+    Version states:
+    - **Draft** — editable, not live
+    - **Published** — locked, can be activated
+    - **Active** — the live version users talk to
+    - **Archived** — preserved but inactive
+  </Accordion>
+
+  <Accordion title="aui version snapshot">
+    Manage version snapshots for comparing agent configurations.
+
+    ```bash
+    aui version snapshot                    # Interactive menu
+    aui version snapshot list               # List snapshots
+    aui version snapshot get <tag>          # Show snapshot manifest
+    aui version snapshot diff <a> <b>       # File-level diff
+    aui version snapshot diff <a> <b> --full # Field-level JSON diff
+    ```
+
+    Snapshots capture the complete agent configuration at a point in time for version comparison and rollback.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Integrations
+
+<AccordionGroup>
+  <Accordion title="aui integration">
+    Interactive menu for managing integrations (MCP and Composio).
+
+    ```bash
+    aui integration                                  # Interactive menu
+    aui integration toolkits                         # List Composio toolkits
+    aui integration tools --slugs <A,B>              # Fetch tool descriptors
+    aui integration discover --url <mcp-url>         # Discover MCP tools
+    aui integration create --full --name <n> --url <url> --all-tools  # Create MCP
+    aui integration create --full --name <n> --toolkit <slug> --all-tools  # Create Composio
+    aui integration test --params '<json>'           # Test an endpoint
+    ```
+
+    | Option | Description |
+    | --- | --- |
+    | `--json` | Output structured JSON |
+    | `--search <query>` | Search toolkits by keyword |
+    | `--all` | Show all results (no pagination) |
+    | `--limit <n>` | Limit results |
+    | `--cursor <c>` | Pagination cursor |
+
+    <Info>
+      Supports both manual MCP server integrations (your own server) and native Composio integrations (from the toolkit directory).
+    </Info>
   </Accordion>
 </AccordionGroup>
 

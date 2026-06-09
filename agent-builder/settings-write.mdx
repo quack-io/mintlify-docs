@@ -60,7 +60,7 @@ Update agent general settings. Body contains changed fields plus scope IDs.
 
 - **Send only changed fields** — PATCH applies partial updates. Include only the fields you want to change plus the required scope IDs. Sending the full object risks overwriting concurrent changes.
 - **Always include `updated_by`** — This field tracks who made the change. Use the account ID or email of the person/service making the update for audit purposes.
-- **Validate with `aui dvalidate` after changes** — If you're editing settings alongside CLI-managed `.aui.json` files, run validation to ensure consistency.
+- **Validate with `aui validate` after changes** — If you're editing settings alongside CLI-managed `.aui.json` files, run validation to ensure consistency.
 
 ---
 

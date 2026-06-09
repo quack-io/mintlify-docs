@@ -1,0 +1,137 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "AUI",
+  "colors": {
+    "primary": "#8169FF",
+    "light": "#8169FF",
+    "dark": "#5239CC"
+  },
+  "favicon": "/logo/favicon.png",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Introduction",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "introduction",
+              {
+                "group": "Building Agents",
+                "pages": [
+                  "overview/agent-hierarchy",
+                  "overview/agent-settings",
+                  "overview/shared-entities"
+                ]
+              },
+              "quickstart",
+              "changelog"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CLI",
+        "groups": [
+          {
+            "group": "CLI",
+            "pages": [
+              "cli/overview",
+              "cli/installation",
+              "cli/commands",
+              "cli/configuration",
+              "cli/workflows"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Messaging API",
+        "groups": [
+          {
+            "group": "Messaging API",
+            "pages": [
+              "messaging-api/overview",
+              "messaging-api/authentication",
+              "messaging-api/tasks",
+              "messaging-api/send-message",
+              "messaging-api/trace",
+              "messaging-api/websocket",
+              "messaging-api/errors"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Management API",
+        "groups": [
+          {
+            "group": "Management API",
+            "pages": [
+              "agent-builder/overview"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/aui-io",
+          "icon": "github"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/aui-logo.jpg",
+    "dark": "/logo/favicon.png"
+  },
+  "api": {
+    "openapi": [],
+    "mdx": {
+      "server": "https://api.aui.io/v1"
+    }
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "background": {
+    "color": {
+      "light": "#FFFFFF",
+      "dark": "#0A0A0A"
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Demo",
+        "href": "https://demo.aui.io"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Playground",
+      "href": "https://playground.aui.io"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/Aug_Intel",
+      "linkedin": "https://www.linkedin.com/company/augmentedintelligence-aui/",
+      "github": "https://github.com/aui-io"
+    }
+  },
+  "fonts": {
+    "heading": {
+      "family": "Poppins",
+      "weight": 600
+    },
+    "body": {
+      "family": "Poppins",
+      "weight": 400
+    }
+  }
+}

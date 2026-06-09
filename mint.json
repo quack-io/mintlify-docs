@@ -45,7 +45,7 @@
       "url": "messaging-api"
     },
     {
-      "name": "Agent Builder API",
+      "name": "Management API",
       "url": "agent-builder"
     }
   ],
@@ -90,24 +90,15 @@
         "messaging-api/authentication",
         "messaging-api/tasks",
         "messaging-api/send-message",
+        "messaging-api/trace",
         "messaging-api/websocket",
         "messaging-api/errors"
       ]
     },
     {
-      "group": "Agent Builder API",
+      "group": "Management API",
       "pages": [
-        "agent-builder/overview",
-        "agent-builder/authentication",
-        "agent-builder/identity",
-        "agent-builder/organizations",
-        "agent-builder/accounts",
-        "agent-builder/networks",
-        "agent-builder/settings-read",
-        "agent-builder/settings-write",
-        "agent-builder/knowledge-bases",
-        "agent-builder/api-workflow",
-        "agent-builder/local-serve"
+        "agent-builder/overview"
       ]
     },
     {

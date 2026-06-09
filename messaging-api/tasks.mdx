@@ -1,6 +1,6 @@
 ---
-title: "Tasks"
-description: "Create and manage conversation tasks with AUI agents."
+title: "Create Tasks"
+description: "Start conversation threads with Apollo-1 agents."
 ---
 
 <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
@@ -8,36 +8,60 @@ description: "Create and manage conversation tasks with AUI agents."
   <span style={{ background: 'rgba(129,105,255,0.15)', color: '#8169FF', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Stable</span>
 </div>
 
-A task represents a conversation session with an AUI agent. Create a task before sending messages, and use the task ID to scope all interactions within that session.
+A task represents a conversation thread with an Apollo-1 agent. Create a task before sending messages, and use the task ID to scope all interactions within that thread.
 
 ---
 
 ## Create a Task
 
-Creates a new conversation task and returns a welcome message from the agent.
+Creates a new conversation thread and returns a welcome message from the agent.
 
 ```bash cURL
-curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks" \
+curl -X POST "https://api.aui.io/v1/messaging/tasks" \
   -H "Content-Type: application/json" \
-  -H "x-network-api-key: your-api-key" \
-  -d '{"user_id": "user_123"}'
+  -H "x-aui-api-key: your-api-key" \
+  -H "x-aui-organization-id: your-org-id" \
+  -H "x-aui-account-id: your-account-id" \
+  -d '{
+    "agent_id": "agent_abc123",
+    "user_id": "user_xyz789",
+    "task_origin_type": "web-widget"
+  }'
 ```
 
-### POST `/api/v1/external/tasks`
+### POST `/v1/messaging/tasks`
 
-**Base URL:** `https://data-services.aui.io/api/ia-controller`
+**Base URL:** `https://api.aui.io`
 
 #### Headers
 
 | Header | Required | Description |
 | --- | --- | --- |
-| `x-network-api-key` | Yes | Your network API key |
+| `x-aui-api-key` | Yes | Your API key |
+| `x-aui-organization-id` | Yes | Organization identifier |
+| `x-aui-account-id` | Yes | Account identifier |
 | `Content-Type` | Yes | Must be `application/json` |
 
 #### Request Body
 
+<ParamField body="agent_id" type="string" required>
+  The agent management ID. Apollo resolves the network and active version from this.
+</ParamField>
+
 <ParamField body="user_id" type="string" required>
   Unique identifier for the user starting the conversation.
+</ParamField>
+
+<ParamField body="task_origin_type" type="string" default="web-widget">
+  Origin of the conversation. Common values: `web-widget`, `api`, `third-party`.
+</ParamField>
+
+<ParamField body="version_id" type="string">
+  Pin the thread to a specific draft version. If omitted, uses the agent's active version.
+</ParamField>
+
+<ParamField body="version_tag" type="string">
+  Pin the thread to a specific revision tag (e.g., `v8.14`).
 </ParamField>
 
 #### Response
@@ -63,34 +87,42 @@ curl -X POST "https://data-services.aui.io/api/ia-controller/api/v1/external/tas
 </ResponseField>
 
 <ResponseExample>
-```json 200
+```json 201
 {
-  "id": "68e78d0dc5a4b19a030d03d6",
-  "user_id": "user_123",
+  "id": "task_68e78d0dc5a4b19a030d03d6",
+  "user_id": "user_xyz789",
   "title": "New Conversation",
-  "welcome_message": "Hi! I'm here to help you find the perfect product. What are you looking for today?",
+  "welcome_message": "Hi! I'm here to help you with your account. What can I assist you with today?",
   "followup_suggestions": [
-    "Show me your best sellers",
-    "I need help choosing a product",
-    "What's on sale right now?"
+    "Check my recent transactions",
+    "Dispute a charge",
+    "Update my contact information"
   ]
 }
 ```
 </ResponseExample>
 
-#### Code Examples
+---
+
+## Code Examples
 
 <CodeGroup>
 ```javascript Node.js
 const response = await fetch(
-  "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks",
+  "https://api.aui.io/v1/messaging/tasks",
   {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-network-api-key": "your-api-key",
+      "x-aui-api-key": "your-api-key",
+      "x-aui-organization-id": "your-org-id",
+      "x-aui-account-id": "your-account-id"
     },
-    body: JSON.stringify({ user_id: "user_123" }),
+    body: JSON.stringify({
+      agent_id: "agent_abc123",
+      user_id: "user_xyz789",
+      task_origin_type: "api"
+    }),
   }
 );
 
@@ -103,12 +135,18 @@ console.log(task.welcome_message);
 import requests
 
 response = requests.post(
-    "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks",
+    "https://api.aui.io/v1/messaging/tasks",
     headers={
         "Content-Type": "application/json",
-        "x-network-api-key": "your-api-key",
+        "x-aui-api-key": "your-api-key",
+        "x-aui-organization-id": "your-org-id",
+        "x-aui-account-id": "your-account-id"
     },
-    json={"user_id": "user_123"},
+    json={
+        "agent_id": "agent_abc123",
+        "user_id": "user_xyz789",
+        "task_origin_type": "api"
+    },
 )
 
 task = response.json()
@@ -119,212 +157,86 @@ print(task["welcome_message"])
 
 ---
 
-## List Tasks
+## Get Task Trace
 
-Retrieves a paginated list of tasks for a specific user.
+Retrieve the complete reasoning trace for all interactions in a task.
 
 ```bash cURL
-curl "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks?user_id=user_123&page=1&size=10" \
-  -H "x-network-api-key: your-api-key"
+curl "https://api.aui.io/v1/messaging/tasks/task_123/trace-info" \
+  -H "x-aui-api-key: your-api-key"
 ```
 
-### GET `/api/v1/external/tasks`
+### GET `/v1/messaging/tasks/{task_id}/trace-info`
 
-#### Headers
+Returns an array of interaction traces — one per message exchange in the thread. Each trace contains:
+- Intent parsing results
+- Entities resolved
+- Rules evaluated
+- Parameters extracted
+- Tools invoked
+- Decisions made
 
-| Header | Required | Description |
-| --- | --- | --- |
-| `x-network-api-key` | Yes | Your network API key |
+<ParamField path="task_id" type="string" required>
+  The task identifier.
+</ParamField>
 
 #### Query Parameters
 
-<ParamField query="user_id" type="string" required>
-  Filter tasks by user identifier.
+<ParamField query="interaction_id" type="string">
+  Optional. Fetch a single interaction's trace instead of all traces.
 </ParamField>
-
-<ParamField query="page" type="integer" default="1">
-  Page number for pagination.
-</ParamField>
-
-<ParamField query="size" type="integer" default="10">
-  Number of tasks per page.
-</ParamField>
-
-#### Response
-
-<ResponseField name="tasks" type="array">
-  List of task objects.
-</ResponseField>
-
-<ResponseField name="total" type="integer">
-  Total number of tasks for this user.
-</ResponseField>
-
-<ResponseField name="page" type="integer">
-  Current page number.
-</ResponseField>
-
-<ResponseField name="size" type="integer">
-  Number of tasks per page.
-</ResponseField>
-
-<ResponseExample>
-```json 200
-{
-  "tasks": [
-    {
-      "id": "68e78d0dc5a4b19a030d03d6",
-      "user_id": "user_123",
-      "title": "Product Search",
-      "welcome_message": "Hi! How can I help you today?",
-      "followup_suggestions": []
-    }
-  ],
-  "total": 24,
-  "page": 1,
-  "size": 10
-}
-```
-</ResponseExample>
-
-#### Code Examples
-
-<CodeGroup>
-```javascript Node.js
-const params = new URLSearchParams({
-  user_id: "user_123",
-  page: "1",
-  size: "10",
-});
-
-const response = await fetch(
-  `https://data-services.aui.io/api/ia-controller/api/v1/external/tasks?${params}`,
-  {
-    headers: { "x-network-api-key": "your-api-key" },
-  }
-);
-
-const { tasks, total } = await response.json();
-console.log(`${total} tasks found`);
-```
-
-```python Python
-response = requests.get(
-    "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks",
-    headers={"x-network-api-key": "your-api-key"},
-    params={"user_id": "user_123", "page": 1, "size": 10},
-)
-
-data = response.json()
-print(f"{data['total']} tasks found")
-```
-</CodeGroup>
-
----
-
-## Get Task Messages
-
-Retrieves all messages in a specific task (conversation history).
-
-```bash cURL
-curl "https://data-services.aui.io/api/ia-controller/api/v1/external/tasks/68e78d0dc5a4b19a030d03d6/messages" \
-  -H "x-network-api-key: your-api-key"
-```
-
-### GET `/api/v1/external/tasks/{task_id}/messages`
-
-#### Headers
-
-| Header | Required | Description |
-| --- | --- | --- |
-| `x-network-api-key` | Yes | Your network API key |
-
-#### Path Parameters
-
-<ParamField path="task_id" type="string" required>
-  The task identifier (ObjectId format).
-</ParamField>
-
-#### Response
-
-Returns an array of `ExternalTaskMessage` objects — the same format as the [Send Message](/messaging-api/send-message) response.
 
 <ResponseExample>
 ```json 200
 [
   {
-    "id": "507f1f77bcf86cd799439011",
-    "created_at": "2026-03-09T14:20:00.000Z",
-    "text": "I am looking for a built-in microwave with at least 20 liters capacity",
-    "sender": {
-      "id": "user_123",
-      "type": "user",
-      "email": "customer@example.com"
+    "interaction_id": "int_507f1f77bcf86cd799439011",
+    "intent": "dispute_charge",
+    "entities": {
+      "transaction_id": "txn_abc123",
+      "transaction_date": "2026-05-30"
     },
-    "receiver": {
-      "id": "agent_abc123",
-      "type": "agent",
-      "email": "agent@aui.io"
-    },
-    "options": [],
-    "variants_options": [],
-    "followup_suggestions": []
-  },
-  {
-    "id": "507f1f77bcf86cd799439012",
-    "created_at": "2026-03-09T14:22:01.000Z",
-    "text": "I found several built-in microwaves with 20+ liters capacity. Here are the top options for you:",
-    "sender": {
-      "id": "agent_abc123",
-      "type": "agent",
-      "email": "agent@aui.io"
-    },
-    "receiver": {
-      "id": "user_123",
-      "type": "user",
-      "email": "customer@example.com"
-    },
-    "options": [],
-    "variants_options": [],
-    "followup_suggestions": [
-      "What is the price range?",
-      "Do any of these come in stainless steel?",
-      "Which one has the best energy rating?"
-    ]
+    "rules_evaluated": [
+      {
+        "rule_id": "rule_dispute_window",
+        "predicate": "today - txn.date <= 8 days",
+        "result": "blocked",
+        "reason": "Transaction is 10 days old, exceeds 8-day dispute window"
+      }
+    ],
+    "tools_considered": ["create_dispute"],
+    "tools_invoked": [],
+    "decision": "block_with_explanation"
   }
 ]
 ```
 </ResponseExample>
 
-#### Code Examples
+---
 
-<CodeGroup>
-```javascript Node.js
-const taskId = "68e78d0dc5a4b19a030d03d6";
+## Errors
 
-const response = await fetch(
-  `https://data-services.aui.io/api/ia-controller/api/v1/external/tasks/${taskId}/messages`,
-  {
-    headers: { "x-network-api-key": "your-api-key" },
-  }
-);
+| Status | Description |
+| --- | --- |
+| `401` | Missing or invalid `x-aui-api-key` header |
+| `403` | Insufficient permissions for the specified agent |
+| `422` | Validation error — invalid request parameters |
 
-const messages = await response.json();
-messages.forEach((msg) => {
-  console.log(`[${msg.sender.type}] ${msg.text}`);
-});
+```json 401
+{
+  "error": "Unauthorized",
+  "message": "Invalid or missing API key"
+}
 ```
 
-```python Python
-task_id = "68e78d0dc5a4b19a030d03d6"
-
-response = requests.get(
-    f"https://data-services.aui.io/api/ia-controller/api/v1/external/tasks/{task_id}/messages",
-    headers={"x-network-api-key": "your-api-key"},
-)
-
-messages = response.json()
-for msg in messages:
-    print(f"[{msg['sender']['type']}] {msg['text']}")
+```json 422
+{
+  "error": "Validation Error",
+  "details": [
+    {
+      "field": "agent_id",
+      "message": "agent_id is required"
+    }
+  ]
+}
 ```
-</CodeGroup>

@@ -27,7 +27,7 @@ description: "Build, manage, and deploy AI agent configurations from your termin
       fontWeight: 500,
     }}
   >
-    v0.1.77
+    v0.3.154
   </span>
   <span
     style={{
@@ -39,7 +39,7 @@ description: "Build, manage, and deploy AI agent configurations from your termin
       fontWeight: 500,
     }}
   >
-    GA May 2026
+    GA Q2 2026
   </span>
 </div>
 
@@ -49,7 +49,7 @@ npm install -g aui-agent-builder
 
 AUI Agent Builder is a CLI tool for building, managing, and deploying AI agent configurations on the AUI platform. It enables a **local-first development workflow**: import agents as JSON files, edit them in your IDE with schema autocomplete, validate locally, and push changes back to the cloud.
 
-**Current version:** 0.1.77
+**Current version:** 0.3.154
 
 ## Quick Start
 
@@ -63,7 +63,7 @@ aui import-agent
 # 3. Edit .aui.json files in your IDE (VSCode/Cursor get schema autocomplete)
 
 # 4. Validate your changes
-aui dvalidate
+aui validate
 
 # 5. Push changes to the cloud
 aui push
@@ -77,7 +77,7 @@ aui push
     with full JSON schema autocomplete. No web UI required.
   </Accordion>
   <Accordion title="Schema Validation">
-    Validate agent configurations locally with `aui dvalidate` before pushing.
+    Validate agent configurations locally with `aui validate` before pushing.
     Catches syntax errors, missing fields, and cross-reference issues.
   </Accordion>
   <Accordion title="Smart Push with Diffing">
@@ -110,7 +110,7 @@ aui push
     in VSCode and Cursor.
   </Step>
   <Step title="Validate">
-    Run `aui dvalidate` to check syntax, required fields, and cross-reference
+    Run `aui validate` to check syntax, required fields, and cross-reference
     integrity.
   </Step>
   <Step title="Push">

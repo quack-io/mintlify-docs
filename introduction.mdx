@@ -1,292 +1,231 @@
 ---
-title: "Apollo-1: The Foundation Model for Neuro-Symbolic Agents"
+title: "Apollo-1: Reasoning in Code, Not Weights"
 sidebarTitle: "Introduction"
-description: "A new foundation for agents that act on behalf of an entity — not a user."
+description: "A new kind of reasoning over language — reasoning you can read, that runs exactly as written."
 ---
 
 <Card
-  title="Beyond Generative AI — Read the Apollo-1 blog post"
+  title="Read the full Apollo-1 announcement"
   icon="newspaper"
   href="https://www.aui.io/resources/beyond-generative-ai/"
 >
-  Apollo-1: The Foundation Model for Neuro-Symbolic Agents
+  Reasoning in Code, Not Weights: Apollo-1
 </Card>
 
-## Contents
+## Summary
 
-1. [Summary](#01-summary)
-2. [Two Kinds of Agents](#02-two-kinds-of-agents)
-3. [Why Current Approaches Struggle](#03-why-current-approaches-struggle)
-4. [Eight Years to Build](#04-eight-years-to-build)
-5. [Apollo-1](#05-apollo-1)
-6. [How It Works](#06-how-it-works)
-7. [Agent Frontend: Formal Enforcement](#07-agent-frontend-formal-enforcement)
-8. [The Agent Backend: Open Cognition](#08-the-agent-backend-open-cognition)
-9. [What Apollo-1 Isn't For](#09-what-apollo-1-isn-t-for)
-10. [General Availability](#10-general-availability)
-11. [Conclusion](#11-conclusion)
+Apollo-1 introduces a new kind of reasoning over language: reasoning you can read, that runs exactly as written. A language model's reasoning lives in weights — you cannot read it, and its behavior is sampled. A prompt is readable but only advisory; the model may follow it or not. Apollo-1's reasoning is neither. It is written down in full, and it runs as written. What you read is what runs.
+
+That reasoning is a program — a file the company authors, edits, and owns. Not behavior frozen in a vendor's weights, not logic buried inside a vendor's application, but the company's own artifact: readable end to end, version-controlled, auditable, and changed when the business changes. The principal is the company. An Apollo-1 agent talks to a user but answers to a business — booking, claims, returns, disputes, payments — where generative AI works for the user: the developer, the employee, the individual.
+
+The mechanism is three layers, and only three. A typed symbolic language for task-oriented reasoning. Programs written in it — each program an agent. And a runtime that runs them: one frozen model that takes a program, a user's message, and live context, and produces behavior. Language, programs, runtime. Because that one model runs any program written for it — generalizing to programs, situations, and phrasings it was never shown — it is a foundation model in the strict sense, and the agents are what it runs, not what is baked into it. This is possible because the domain is finite: the procedural structure of task-oriented dialogue is a closed, compact grammar, and a single model can cover it.
+
+Building and changing an agent is software work, and that is the deeper point. Once reasoning is a program, it is a software artifact — versioned, diffed, reviewed, tested, composed, owned — and it improves the way software improves. Long-horizon coding agents made this practical: the program, the runtime call, and the trace all live in one medium a coding agent reads and writes, so it can author a change, run it, read the trace, and revise until the behavior holds. That loop is what turns a faithful program into a reliable one, and what closed the cost of authoring and maintaining logic this complex — the standing argument against neuro-symbolic AI at scale. Run it enough and the gains compound: a behavior made correct stays correct, so quality becomes a function of compute.
+
+A different kind of model, for a different kind of agent. Reasoning in code, not weights — which is to say, reasoning as software.
 
 ---
 
-## 01. Summary
+## Neuro-Symbolic AI
 
-Two different things are emerging under the name "agent." One kind works for a user: a coding assistant, a personal AI, a computer-use agent. The other kind works on behalf of an entity — a bank, an airline, an insurer, a hospital — and is bound by that entity's policy, not a user's prompt. The first problem is mostly solved. The second one is barely started.
+Neuro-symbolic AI composes neural perception with symbolic logic in a single model. Decisions are computed from typed symbolic state, not sampled from token probabilities.
 
-Apollo-1 is the first foundation model for the second kind. It's a neuro-symbolic architecture where the same computation that writes the sentence checks the policy: generation and enforcement in one forward pass. The agent converses fluently with users through a frontend, and the entity teaches it how to act, asks it why it did something, and evolves its behavior in plain English through a backend. Because the reasoning is symbolic, the rules the engine enforces at runtime are the same objects the people who own the policies can read, edit, and audit.
+The architecture has been a research direction for decades, and it produced no foundation model. Classical symbolic AI tried to encode meaning into its symbols, which forced ontologies to represent the world. The world did not fit. The structures did not compose across domains, and the maintenance cost crushed every implementation.
 
-## 02. Two Kinds of Agents
+Apollo-1's symbols are procedural, not semantic. They carry roles, relations, state transitions, and predicates over state — the grammar of task-oriented dialogue, not a description of the world. Content stays in the neural modules. The symbolic layer knows where a value sits in a program and what role it plays; it does not represent what the value means. This is the separation classical AI never made, and it is the line between a foundation model and a graveyard. Semantic common sense — that water is wet, that the dead stay dead — is about the world, and it is infinite; it is what earlier symbolic programs spent decades trying to write down while the world refused to fit. Procedural common sense — confirm before charging, identify before acting, never reverse what never happened — is not about the world at all. It is the shape of finishing a task through conversation, and it is finite. The procedural grammar can be completed; the semantic one cannot. Apollo-1 takes the first and refuses the second.
 
-Open-ended agents work for users. Coding assistants, computer-use agents, personal AI. You're the principal. If the agent interprets your intent slightly differently each time, that's fine. You're in the loop. You'll correct it. Flexibility is the point.
+This is the load-bearing claim of the architecture, so it is worth stating precisely: the procedural grammar is finite by construction. We built it, over years, by dissecting task-oriented conversations into their recurring structures. The same structures recur under different content, so generalization works on the structures while the values that fill them change turn to turn. Novel inputs are mapped onto that finite set at inference. When the mapping is imperfect, the result is task failure, not a silently broken rule.
 
-Task-oriented agents work on behalf of entities. An airline's booking agent. A bank's support agent. An insurer's claims agent. These agents serve users, but they represent the entity. The entity is the principal — the one whose policies must be enforced.
+Apollo-1 is the first foundation model for neuro-symbolic AI: a single model, frozen, that generalizes one capability — reasoning over typed symbolic state, binding it to natural language — across the whole space of task-oriented reasoning programs written for it. A language model's domain is text; Apollo-1's domain is those programs. Same model, different program, different agent, and an improvement to the model propagates to every program built on it.
 
-Task-oriented agents need logical reasoning: the ability to evaluate conditions against state and produce guaranteed outcomes. The ticket won't be cancelled unless the passenger is Business Class and Platinum Elite. The payment won't process without explicit confirmation. The refund won't be issued if required documentation is missing.
+Three architectural consequences run through the rest of the paper. Language and logic operate in one computation. The agent's cognition is a program, separate from the model that runs it. And because the program is software, the agent improves through the loop that has driven a decade of machine learning — propose a change, validate it, keep what scores — with one addition that matters: because what scores is preserved as a test, the gains compound rather than regress.
 
-These aren't preferences. They're requirements that determine whether AI can be trusted with interactions involving real money, real appointments, and real consequences.
+---
 
-But task-oriented agents also need flexibility. Users don't follow scripts. They ask unexpected questions, change their mind, go off on tangents. The agent has to handle real conversation while enforcing real logic.
+## Two Kinds of Agents
 
-That combination is the hard problem. Task-oriented agents need two kinds of reasoning working together. **Neural reasoning** — understanding language, handling ambiguity, maintaining fluid conversation. And **logical reasoning** — evaluating conditions against state, enforcing specific outcomes, holding regardless of how the user phrases the request.
+Two different systems are emerging under one word. They are not variations of the same thing. They have different principals, different jobs, and cognition in different places.
 
-Generative AI gave us agents that work on behalf of users. Neuro-Symbolic AI gives us agents that work reliably on behalf of entities.
+Open-ended agents work for users: coding assistants, personal AI, employee tools. The user is the principal, and flexibility is the point. Cognition lives at the model provider, in weights, and the user adapts to whatever the latest model does. The LLM is the right substrate for this.
 
-## 03. Why Current Approaches Struggle
+Task-oriented agents work on behalf of companies: the agent that handles a claim, schedules a procedure, processes a return, files a dispute, authorizes a transfer, books a seat. These agents serve users, but they represent the company — the entity whose policies must be enforced, whose lawyers must approve, whose compliance team must audit, whose product team must change behavior when the business changes. For these, cognition cannot stay implicit at a provider. It has to be an artifact the company holds.
 
-Every conversation that results in real-world action — booking flights, processing payments, managing claims, executing trades — could be automated. These interactions run the economy. The market for task-oriented agents dwarfs what open-ended assistants will ever capture.
+Task-oriented agents require three properties, and an architecture has to provide all three at once:
 
-But enterprises won't trust AI with customer interactions when "usually works" is the best assurance available. This is why, despite three years and billions of dollars, high-stakes enterprise deployments are hard to come by.
+**Reasoning over both language and state, in one model.** Users do not follow scripts. They ask unexpected questions, change their minds, wander. The agent has to reason over what they say. At the same time it must evaluate conditions against state and enforce its rules without exception: the ticket cancels only when the passenger is Business Class and Platinum Elite; the payment processes only on explicit confirmation; the refund issues only on documented eligibility. Open-ended language and formal reasoning over state have to meet inside one model, not across two systems trading messages.
 
-The industry has converged on two approaches. Both fail because they put conversation and reasoning in separate systems.
+**Mutable cognition.** An airline's cancellation policy changes; a bank's dispute window changes; a hospital's scheduling rules change. The agent has to move with the business, without retraining and without a model release.
 
-### Orchestration Frameworks
+**Intelligence in a program, not in weights.** The agent has to be an artifact compliance can read, legal can sign, engineering can version. Cognition in weights cannot be read, audited, or attributed to a decision. Without an artifact to point at, behavior is no one's responsibility — and no enterprise deploys responsibility it cannot assign.
 
-Orchestration wraps LLMs in workflow systems: state machines, routing logic, branching conditions. The state machine reasons. The LLM converses. Two systems, each doing one job.
+---
 
-The problem is that these systems don't share understanding. A user is mid-payment and says "wait, what's the cancellation policy before I pay?" No transition was coded for this. The system either breaks, gives a canned response, or forces the user back on script. You add a branch. Then users ask about refunds mid-payment. Or shipping. Or they change their mind. Real deployments accumulate hundreds of branches and still miss edge cases.
+## Why Current Approaches Struggle
 
-The alternative is handing off to the LLM — but the LLM has no understanding of where you are in the flow, what logic applies, what state has accumulated. It might process the payment without confirmation because it's predicting tokens, not reasoning from state.
+Two architectures dominate task-oriented AI today: orchestration frameworks and function-calling LLM agents. Both wrap an LLM in different scaffolding, and both fail the three-property test for the same structural reason: rules are not a first-class object in either.
 
-Conversation and reasoning are inversely correlated. The tighter the state machine, the worse the user experience. The more you rely on the LLM, the less you can trust behavior. And there's no model underneath — every branch, every condition is coded by hand. Each workflow is its own silo. When business logic changes, you update it in multiple places.
+**Orchestration frameworks** wrap an LLM in a workflow system — state machines, routing, branching. The state machine reasons; the LLM converses; the two do not share understanding. A user is mid-payment and asks, "wait — what's the cancellation policy before I pay?" No transition was coded for the digression, so the system breaks, gives a canned reply, or forces the user back on script. You add a branch. Then users ask about refunds mid-payment, or shipping. Real deployments accumulate hundreds of branches and still miss edge cases. Hand off to the LLM instead, and it has no model of the flow, the rules, or the accumulated state, so it may process the payment without confirmation because it is predicting a token, not reasoning from state. Conversation and reasoning end up inversely correlated: the tighter the state machine, the worse the experience; the more the LLM is trusted, the less the behavior holds.
 
-Orchestration gives you reasoning over a flowchart. It doesn't give you an agent that reasons.
+**Function-calling agents** take the opposite approach: give the LLM tools and let it decide when to call them. Conversation works. But the decisions are sampled from a probability distribution, not computed from state. Prompting, fine-tuning, and output filtering reduce unwanted tool calls; they do not eliminate them. The model might call the refund function without verifying documentation, skip a confirmation, or invoke a tool with the wrong parameters. Validation layers that gate a call before it executes help, but they are reactive — the agent has already decided to act — and each one is written per tool, not derived from a shared model of the domain.
 
-### Function-Calling LLM Agents
+Both treat rules as add-ons. In orchestration, a rule is a branch — part of a flow, not part of a model. In function-calling, a rule is a sentence in a system prompt — advisory, soft, forgettable. Neither captures what rules actually do in task-oriented cognition. Rules are not only enforcement; they are the structural layer that lets symbolic logic and neural reasoning coexist. When a rule is a symbolic predicate the runtime evaluates, the symbolic side holds the logic absolutely while the neural side handles whatever language arrives. The rule does not constrain the conversation. It stabilizes the cognition. Without rules as structure, the model has nothing to hold, and conversation and reasoning revert to the inverse correlation neither approach can escape.
 
-Function-calling agents take the opposite approach: give the LLM access to tools and let it decide when to call them. Natural conversation works. But the LLM is still the decision-maker, and its decisions are sampled from a probability distribution — not computed from state.
+Until neuro-symbolic AI, no architecture combined open-ended conversation with reliable enforcement in one model.
 
-You can make unwanted tool calls less likely through prompting, fine-tuning, or output filtering. You cannot make them impossible. The LLM might call the refund function without verifying documentation. It might skip the confirmation step. It might invoke a tool with incorrect parameters. These aren't bugs. They're inherent to the architecture.
+---
 
-Validation layers help — check the tool call before executing, reject if conditions aren't met. But validation is reactive. The agent already decided to take the action; you're just blocking it after the fact. And the validation logic is coded per-tool, not derived from shared understanding of the domain.
+## Origins
 
-### The Gap
+In 2017 we began encoding millions of real task-oriented conversations into structured data, with a workforce of 60,000 human agents. The insight was not data scale; it was what must be represented — and why it could only be learned, not written down.
 
-Both approaches fail for the same structural reason: the state machine doesn't know language and the LLM doesn't know state. What's needed is a single architecture where the same computation that handles unexpected questions is the same computation that evaluates logic.
+Task-oriented conversational AI requires two kinds of knowledge in tandem. Descriptive knowledge — entities, attributes, domain content. Procedural knowledge — roles, logic, flows, policies. Datasets are stateless; logic requires explicit state. We began building a typed symbolic language to capture these recurring structures.
 
-## 04. Eight Years to Build
+Why 60,000 agents and not an ontology team? Because the knowledge we needed is tacit. The procedural sense of how a skilled person actually closes a claim, or defuses a dispute, or knows when to confirm and when to refuse, is written in no rulebook; it lives only in the doing. Tacit knowledge cannot be stated, only distilled from behavior. That is the deeper reason classical AI was doomed in principle and not merely in practice — it set out to write down what can only be extracted — and it is why our path ran through millions of real conversations ranked by reputation rather than through a specification.
 
-In 2017, we began solving and encoding millions of real-user task-oriented conversations into structured data, powered by a workforce of 60,000 human agents. The core insight wasn't about data scale; it was about what must be represented.
+Around 2021 the leap in language models arrived. Modern LLMs replaced the pre-transformer foundations our neural stack had been built on. Language stopped being the bottleneck, and only then did the rest of the architecture become reachable. Across every domain we tested — booking, scheduling, claims, disputes, renewals, authorizations — task-oriented dialogue followed the same procedural patterns: parameter extraction, intent identification, logic evaluation, policy enforcement, state-dependent branching. We built the typed symbolic language out across these structures, and the neuro-symbolic reasoner that computes next actions from encoded state. The procedural logic inside the engine was not trained into weights; it was taught — distilled over years from those conversations into symbolic structure, by dissecting them into their elements and ranking contributions through a peer-review reputation system. Augmented Intelligence — our name — is the term for the loop that produced it.
 
-Task-oriented conversational AI requires two kinds of knowledge working together:
+The second outside contribution arrived in mid-2025: coding agents able to read, modify, and verify structured codebases end-to-end. Cognition expressed as code is the end-state of a typed symbolic language — what the language was designed to enable. The maintenance cost of authoring and evolving programs in our language had been the standing argument against neuro-symbolic AI at scale. With coding agents at production capability, that argument closed.
 
-- **Descriptive knowledge** — entities, attributes, domain content
-- **Procedural knowledge** — roles, logic, flows, policies
+Two things had to be true at once, and only recently were. On our side, a coding agent had to be able to drive the runtime directly: the language complete enough to express an agent in full, the CLI and API working under real version control, and the path from the files to the runtime cleared down to the program, the prompt, and the context — removing the last code between them is what brought it within reach. On the other side, coding agents had to become long-horizon, able to work a problem for hours rather than answer in one pass. The first half was ours to build; the second was not. They arrived together, which is why this is only now possible. And the fit is not luck: the reasoning is code because it was taught, not learned into weights, so advances in coding agents accrue to this architecture rather than threaten it.
 
-Training a transformer on multi-turn transcripts can capture conversational style, but it won't teach the model how to handle critical interactions correctly. Datasets are one-dimensional and stateless. Without explicit state, how is the model supposed to learn when to block an action versus when to allow it?
+---
 
-We needed a representation that separates structure from context while carrying each. We constructed a symbolic language that encodes procedural roles and descriptive facts, giving the model a typed symbolic state it can reason over and evaluate logic against.
+## Apollo-1
 
-In parallel, we observed that across every domain we studied — selling shoes, booking flights, processing loans — task-oriented dialogue follows universal procedural patterns. Food delivery, claims processing, and order management share the same structures: parameter extraction, logic evaluation, intent identification, policy enforcement, state-dependent branching.
+Apollo-1 is built on neuro-symbolic architecture. Its inputs are typed symbolic programs and natural-language messages. Its outputs are typed symbolic states and natural-language responses. Reasoning happens in one pass over a single representation: neural modules handle language and perception, symbolic modules handle state and logic, both operating together inside the same computational loop.
 
-The key insight: task-oriented dialogue has a finite number of universal states. They can be mapped.
+The same computation that writes the sentence checks the rule. There is no moment at which the model could choose to break a rule, because rules are part of the computation that produces the response, not a check wrapped around it.
 
-We built a unified model where neural modules handle context and symbolic modules handle structure, operating together rather than in sequence. For the computation itself, we developed the **Neuro-Symbolic Reasoner** — a cognitive core that computes next actions from the current symbolic state, as opposed to predicting the next token. Neural modules translate to and from the symbolic language. Symbolic modules maintain explicit state, evaluate logic, and ensure tool invocations are structured rather than probabilistically sampled.
+What makes Apollo-1 distinct from any other foundation model is where its cognition lives. A language model's cognition lives in weights — a parameter tensor whose behavior is implicit, produced by training, modifiable only by more training. Apollo-1's cognition lives in code — a symbolic program whose behavior is explicit, produced by writing, modifiable by editing.
 
-Together, the symbolic language and the reasoner form Apollo-1.
+The runtime compiles the program and executes it. The program is the agent. Two agents on Apollo-1 run the same runtime and different programs; what makes one a refund agent and another a claims agent is a file. This is what makes Apollo-1 a foundation model, and the claim rests on what it generalizes over. A language model generalizes over text; Apollo-1 generalizes over the space of task-oriented reasoning programs — one frozen model that runs any program written in its symbolic language and produces correct behavior for it, with an improvement to the model reaching every program at once.
 
-## 05. Apollo-1
+### The Symbolic Language
 
-If transformers gave us language, neuro-symbolic architecture gives us agents that can be trusted to act on behalf of the institutions that use language. Apollo-1 is the first foundation model in that lineage. It is not a language model adapted for reasoning. It's not an orchestration layer around existing models. It's a new foundation, built from the ground up on neuro-symbolic architecture.
+Apollo-1's symbolic substrate is a typed programming language for task-oriented reasoning: a grammar that covers a finite domain — task-oriented dialogue — and a runtime that compiles programs written in it. The language has three properties:
 
-**Generation and enforcement in one forward pass. The same computation that writes the sentence checks the policy.**
+1. **It is typed** — Every entity, parameter, rule, and tool has a type the runtime checks, and a program that does not type-check does not run.
+2. **It is finite in its procedural states** — Across every domain we have studied, the same procedural structures appear under different content, and the grammar covers their full set.
+3. **It is expressive over content** — Any value can occupy any field, because the symbols describe procedural roles, not world meaning.
 
-The neural and symbolic components operate together on the same representation in the same computational loop: interpreting language, maintaining state, evaluating logic, and generating responses as one integrated process. The neural components handle conversation. The symbolic components handle logical reasoning. Both are native to the architecture, not glued on.
+An Apollo-1 agent's program is a typed JSON codebase: five files at the root — `agent.aui.json`, `entities.aui.json`, `parameters.aui.json`, `integrations.aui.json`, `rules.aui.json` — and a `tools/` directory with one file per tool. Together they describe what the agent does, what it knows, what it must enforce, and what it can call. The program is text, readable end-to-end by anyone who can open a file.
 
-In practice: when a user asks about cancellation policy mid-payment, the neural side understands the question naturally while the symbolic side maintains the payment flow. State is explicit, not inferred from context. The logic "don't process payment without confirmation" holds absolutely. No branch was coded for this. No handoff occurred.
+### The Runtime
 
-When you define business logic about refund authorization, the model understands how it relates to customer status, order history, and documentation requirements — not because you coded those connections, but because the ontology is part of the model's representation. When you've defined specific business logic, it holds absolutely. When you haven't, the agent converses naturally and thinks for itself.
+Apollo-1's runtime is a neuro-symbolic reasoner. At inference it takes a typed symbolic program and a natural-language message and produces behavior, turn by turn, against live state. A domain-agnostic encoder parses the message into typed symbolic objects, forming the initial state. A stateful loop then iterates until the turn completes: a neuro-symbolic state machine maintains symbolic state, a symbolic reasoning engine computes the next action from that state, and a neuro-symbolic planner compiles executable plans. A domain-agnostic decoder generates language from the final state.
 
-Because the reasoning is neuro-symbolic, it's white-box. Every decision is traceable and auditable — and because the symbolic structures live in real files, they're addressable in language (see [Section 08](#08-the-agent-backend-open-cognition)).
+Perception is probabilistic; action selection is not. Given the same state, the runtime makes the same decision, and every decision in a trace is reproducible from the state that produced it. End-to-end outputs are not deterministic, because perception runs through the neural modules and two phrasings of one request can form different initial states. Once a state is formed, the logic over it is fixed. Failures in perception surface as task failure, not as policy violation.
 
-### Universal by Design
+### Authoring
 
-Apollo-1 is domain-agnostic and use-case-agnostic. The same model powers auto repair scheduling, insurance claims, retail support, healthcare navigation, and financial services — without rebuilding logic per workflow or manual ontology creation. The symbolic structures (intents, logic, parameters, execution semantics) are universal primitives. This is what makes Apollo-1 a foundation model: not scale, but representational generality. Same model, different system prompt.
+Apollo-1 does not write agents. It runs them. Programs are written by coding agents — in the CLI, by the developer's coding agent; in the Playground, by the Agent Builder, a coding agent embedded in an authoring harness. Apollo-1 provides the language, the runtime, the schema, the templates, and the documentation. The coding agent does the writing.
 
-## 06. How It Works
+When the coding agent can run programs on the runtime, the target of authoring changes. It is no longer a well-typed program that expresses the policy; it is a program whose runtime behavior matches the intent. The agent writes a candidate, compiles it, runs it against scenarios, reads the trace, and revises until the observed behavior and the intended behavior agree. The scenarios need not be supplied by hand — the coding agent derives them from the program and the change it just made. The unit of work shifts from producing an artifact to converging on a behavior, and most of the work is no longer generation; it is running programs and reading traces.
 
-Apollo-1 achieves generalization through structure–content separation. Novel inputs are approximated to universal states at inference. The Neuro-Symbolic Reasoner operates on symbolic structures (intents, logic, parameters, actions) that remain constant across domains. Neural modules handle content: perceiving input, processing tool responses, incorporating domain knowledge. Symbolic modules handle structure: state, logic, execution.
+---
 
-**Architecture: encoder, stateful reasoning loop, decoder.**
+## Properties
 
-<Frame>
-  <img
-    src="/images/diagram.png"
-    alt="Apollo-1 neuro-symbolic architecture diagram"
-  />
-</Frame>
+Many properties follow from cognition being code rather than weights. Four are central: rules become a first-class object; every decision is recorded in a trace anyone can read; a faithful program can be made reliable by running it; and reasoning, being a program, becomes software in the full sense.
 
-<Steps>
-  <Step title="Domain-Agnostic Encoder">
-    Translates natural language into symbolic state using both procedural and
-    descriptive knowledge.
-  </Step>
-  <Step title="Neuro-Symbolic State Machine">
-    Maintains symbolic state across the stateful reasoning loop, which iterates
-    until turn completion.
-  </Step>
-  <Step title="Symbolic Reasoning Engine">
-    Computes next actions from state.
-  </Step>
-  <Step title="Neuro-Symbolic Planner">Creates executable plans.</Step>
-  <Step title="Domain-Agnostic Decoder">
-    Generates natural language from final state.
-  </Step>
-</Steps>
+### Rules as a First-Class Object
 
-The symbolic state represents both procedural progress (what state we're in) and descriptive facts (what we know). Perception is probabilistic. Action selection, given a state, is not — given the same state, the Reasoner makes the same decision.
+In Apollo-1, rules are typed symbolic predicates the runtime evaluates against state. The agent does not break a rule for the same reason a compiler does not ignore a type: the rule is part of the computation that produces the response, not a check around it.
 
-The Symbolic Reasoning Engine is a formal, rule-based engine, built on the procedural logic learned from years of encoding millions of multi-turn task-oriented conversations with human agents, ranked by a reputation system based on peer feedback.
+When you define your tools, Apollo-1 generates an ontology — a typed representation of your entities, parameters, and relationships, shared across all your tools — and from it you author the rules the agent must enforce. Apollo-1 expresses them as predicates that live in `rules.aui.json` as code: policy rules (unconditional enforcement), confirmation rules (explicit consent before execution), authentication rules (identity before execution), conditional rules (applied only when conditions hold), and sequencing rules (enforced ordering).
 
-<Note>Augmented Intelligence (AUI) Inc. Patents Pending.</Note>
+Evaluation is deterministic. If the predicate is `today − txn.date ≤ 8 days` and the transaction is nine days old, the action is blocked, every time. Perception remains probabilistic; the system can misunderstand a request, but it cannot decide to skip a required step or forget a policy mid-conversation.
 
-## 07. Agent Frontend: Formal Enforcement
+The payoff is wider than enforcement. When rules are part of the computation, they do not constrain the conversation; they stabilize the cognition. The symbolic side holds the logic absolutely — the predicate fires or it does not — and the neural side stays free to handle whatever language arrives.
 
-The frontend is the side of the agent that faces users. It converses, it acts, it enforces. This is the agent as the end user experiences it: natural, fluent, and — when business logic has been defined — absolute.
+### White-Box Traceability
 
-Apollo-1 ships with a Playground where any use case runs from the system prompt alone. When you define your tools, Apollo-1 automatically generates an **ontology**: a structured representation of your entities, parameters, and relationships. This ontology is shared across all your tools. Business logic defined once applies everywhere it's relevant.
+Every turn produces a trace that records the symbolic computation in full: the intent as parsed, the entities resolved, the tools considered, the rules evaluated, the predicates that fired, the parameters extracted, the decisions made and the reasons attached. Each is a real object in the trace, addressable in code, comparable across turns.
 
-### Defining Business Logic
+Apollo-1's trace is the computation, recorded as it happens. The runtime cannot decide one thing and trace another, because the decision and the trace are the same object. "Why did you block that?" has a literal answer: this rule, this predicate, this state.
 
-From the ontology, you define business logic for the scenarios where the agent must reason formally. Apollo-1 supports a growing set of constraint types, each enforced symbolically at runtime:
+### From Faithful to Reliable
 
-**Policy Constraints.** Business rules the agent must enforce unconditionally. These are the hardest guarantees — actions that must be blocked or required regardless of conversational context.
+Authoring produces a faithful program: it runs exactly as written. Faithful is not reliable. Reliable is faithful and written right, and for logic this complex, whether it is written right is an empirical fact, not one you can read off the page.
 
-> "Block disputes for transactions older than 8 days."
-> "Never process a plan downgrade during an active billing dispute."
-> "Do not schedule appointments outside business hours."
-> "Block wire transfers to accounts not in the pre-approved list."
-> "Prevent duplicate bookings for the same passenger on the same route."
+The run-read-revise loop: runtime access, so the agent can see what the program actually does, and a long horizon, so it can keep going until the behavior holds. Because the program, the scenario, the runtime call, and the trace are all in one medium the agent reads and writes, the loop runs without a human in it.
 
-**Confirmation Constraints.** Actions that require explicit user consent before execution. The agent must pause, present the action it's about to take, and wait for affirmative confirmation. It cannot proceed on implication or assumption.
+Quality becomes something you buy with compute.
 
-> "Require confirmation before processing payment."
-> "Confirm cancellation terms before cancelling a subscription."
-> "Show the user the full cost breakdown and get explicit approval before booking."
+### Reasoning as Software
 
-**Authentication Constraints.** Actions that require identity verification before execution. The agent must verify the user's identity through a specified method before proceeding with sensitive operations.
+Once cognition is a program rather than a parameter tensor, it is not only readable and ownable — it is software, and it inherits the entire software lifecycle. An Apollo-1 agent is versioned and diffed; forked into a variant for a new market or a new regulator; reviewed line by line before it ships; tested against scenarios; composed from shared modules; packaged; and, in principle, open-sourced.
 
-> "Require ID verification for refunds over $200."
-> "Verify account ownership before changing billing information."
-> "Require two-factor confirmation before processing address changes on active policies."
+Apollo-1 does not just let a company own its reasoning. It makes a company's reasoning software. The breakthrough is not that reasoning is written in code. It is that reasoning becomes software.
 
-**Conditional Constraints.** Rules that apply only when specific conditions are met — combining state evaluation with policy enforcement to handle the branching logic that would normally require hand-coded workflows.
+---
 
-> "Allow same-day cancellation only for Business Class passengers with Platinum Elite status."
-> "Waive the restocking fee if the item was delivered damaged and reported within 48 hours."
-> "Escalate to a human agent if the claim amount exceeds $10,000 and the policy is less than 90 days old."
+## The CLI and the Playground
 
-**Sequencing Constraints.** Rules that enforce ordering — actions that must happen before other actions, or that are only valid at specific points in a workflow.
+Apollo-1 agents are authored in two places. The CLI is the developer surface; the Playground is the working surface for everyone touching an agent — engineers, compliance officers, operations leads, product managers, customer-experience owners. Both edit the same typed JSON codebase. Both run against the same runtime.
 
-> "Collect shipping address before presenting delivery options."
-> "Run a credit check before presenting loan terms."
-> "Do not offer a retention discount until the customer has stated intent to cancel."
+### The CLI
 
-Express these in natural language; Apollo-1 compiles them into symbolic reasoning.
+An Apollo-1 agent is a typed JSON codebase, edited in Cursor, VS Code, or any editor with full schema autocomplete. Version control is git. Diffs against `rules.aui.json` are real diffs. Programs are written by coding agents in the developer's terminal or IDE: the developer says what the agent should do, the coding agent generates the program against the language specification, the developer iterates.
 
-These aren't instructions the agent tries to follow. They're logic — evaluated symbolically, enforced formally. Once state is correctly interpreted, the outcome is guaranteed.
+Pull requests work as pull requests work; tests against fixtures work as tests against fixtures work. An agent's history is a commit log, its review is a code review, its rollback is a git revert.
 
-### How Enforcement Works
+### The Playground
 
-Logic enforcement is formal; perception is not. This is a critical distinction.
+The Playground is the agent's working surface. Engineers use it to inspect reasoning, watch rules fire, and iterate on a policy without leaving the browser. Stakeholders without code in their workflow use it to author and edit the program in natural language.
 
-When the Symbolic Reasoning Engine evaluates a rule, the evaluation is deterministic. If the predicate says `today - txn.date <= 8 days` and the transaction is 9 days old, the action is blocked. Every time. The agent doesn't weigh the pros and cons. It doesn't approximate. The rule fires or it doesn't.
+Two surfaces sit side by side. On the right, the agent — the code at runtime; it talks and acts, and clicking any turn opens the white-box trace: initial state, execution, rule evaluation, generation. On the left, the program, addressable in three modes: Build (English, where the Agent Builder authors and modifies the program), View (the structured UI), and Code (the raw `.aui.json` files).
 
-Perception — understanding what the user is asking — remains probabilistic, handled by the neural components. The system may misunderstand what's being requested. But it won't "decide" to skip a required step or "forget" a policy mid-conversation. Misclassification affects whether an action is attempted, not whether business logic is enforced. If perception fails, the action isn't invoked; the user experiences task failure, not policy violation.
+In Build mode you work with the Agent Builder — a coding agent in a context-rich harness with read-write access to the program, live access to every turn's trace, schema validation that ensures changes type-check, scenario evaluation, and a quality gate that decides what commits.
 
-This means failures are confined to a narrower, more auditable category. And because every rule evaluation is logged in the symbolic trace, failures can be diagnosed to the exact point where perception diverged from intent.
+---
 
-## 08. The Agent Backend: Open Cognition
+## What Apollo-1 Isn't For
 
-The agent backend is the side that faces the entity. It's where you teach the agent how to act, ask it why it did something, and evolve its behavior.
+Apollo-1's architecture makes deliberate trade-offs. By optimizing for task-oriented agents, it does not compete in other domains, by design.
 
-In every other AI architecture, there's a hard wall between talking to the agent and changing the agent. They happen in different environments, on different timescales, by different people. The wall is so universal it looks like a law of nature.
+**Open-ended creative work** — writing, brainstorming, exploratory dialogue, where variation creates value — is better served by transformers; Apollo-1's structures enforce consistency, and creativity often requires the opposite.
 
-Apollo-1 dissolves it, for a structural reason. The same property that lets the engine enforce a rule is the property that lets a human read it: the rule is a real symbolic object in a real file. The agent's brain is in code — typed, located, inspectable. **Open cognition** is what we call this property of the architecture. The cognition is open in the way open-source code is open: it can be read, located, modified, diffed, and verified.
+**Code generation** — Apollo-1 can integrate with code-execution tools, but its language is purpose-built for task execution, not software development.
 
-The Apollo-1 Playground exposes the agent backend as a second model with read-write access to the agent's symbolic structures. You talk to it in natural language. It reasons over the same substrate the runtime engine reasons over. It can:
+**Low-stakes, high-variation settings** — engagement campaigns, tutoring, entertainment chatbots — are better served by probabilistic variety than by formal enforcement.
 
-- **Explain decisions** by reference to the actual symbolic trace — not a post-hoc rationalization. _Why did you block that?_ has a literal answer: this rule, this predicate, this state.
-- **Locate rules** by description. You don't need to know the file or the schema, just the policy.
-- **Compile intent into formal logic** and apply it as a diff against the agent's configuration.
-- **Evaluate changes** against other scenarios and edge cases before pushing live.
-- **Verify** that the change fires correctly in the next turn.
+---
 
-The runtime engine and the backend read the same files. Enforcement and editing happen against one substrate, in one vocabulary, with one trace.
+## General Availability
 
-### An Example
+Apollo-1 is already deployed at scale across dozens of enterprises in regulated and unregulated industries, including Fortune 500 companies, with a strategic go-to-market partnership with Google.
 
-We tested both sides against the Credit Card Dispute agent, configured with the policy _"block disputes for transactions older than 8 days."_
+A preview Playground is open, featuring Apollo-1 agents across HR, IT, regulated industries, retail, automotive warranties, and more — domains where we have active early deployments, simulated for preview. Each agent runs from its program alone, viewable as code or in a UI view for non-technical stakeholders, and the Agent Builder is available on every one of them. A technical paper will be released alongside GA.
 
-**Frontend — Enforcement.** The user asks to dispute a Grocery Store charge from 9 days ago. The agent pulls the user record, fetches the transaction history, and refuses: the charge is more than 8 days old. The reasoning trace shows what happened: the planner selected Create Dispute and populated the parameters. Before the call could execute, the Symbolic Reasoning Engine evaluated the policy constraint against the current state. The predicate `today - txn.date <= 8 days` returned false. The block was logged, and the tool call did not happen. The agent talks like an LLM and refuses like a compiler.
+**General availability is Q2 2026.**
 
-**Backend — Editing.** In the agent backend we typed: _"Change the dispute blocking rule from 8 days to 3 days."_ The backend located the existing rule, produced a diff against `rules.aui.json`, updated the user-facing explanation so the agent's spoken refusal would match the new threshold, and pushed the change live. Both edits land in the same place because the rule and its explanation are the same symbolic object.
+Apollo-1 integrates with existing generative-AI workflows and adapts to any API or external system — no endpoint changes, no data preprocessing — with native connectivity to Salesforce, HubSpot, Zendesk, and others, and full MCP support.
 
-**Frontend — Verification.** In a fresh conversation, the agent refused to dispute a charge from 4 days ago — disputable under the old rule, blocked under the new one. Same trace shape. New predicate, new threshold. The behavior moved with the rule, by construction, because the behavior is the rule.
-
-The loop took under a minute. No engineer. No redeployment. Every step auditable: a specific rule, in a specific file, firing at a specific point in the reasoning loop, with a diff you can read.
-
-### Why This Matters
-
-Open cognition changes who can program agent behavior. When the agent's brain is addressable in natural language, anyone who can describe a policy can author it, change it, and verify it. Compliance teams can read the rules they're responsible for. Operations can adjust thresholds without filing tickets. Engineers stop being a bottleneck for business logic, because business logic stops being an engineering artifact.
-
-It also changes what deployment means. The cost of building enterprise agents collapses from months of engineering to hours of describing behavior. And the cost of changing an agent — historically the part that kills deployments — collapses to a sentence.
-
-Formal enforcement and open cognition are not two separate features. They are two consumers of the same substrate. Take the substrate away and you lose both. Build it once, and they fall out together.
-
-## 09. What Apollo-1 Isn't For
-
-Apollo-1's architecture makes deliberate trade-offs. By optimizing for task-oriented agents, it doesn't compete in other domains — by design.
-
-**Open-ended creative work.** Creative writing, brainstorming, exploratory dialogue where variation creates value. Transformers remain the superior architecture. Apollo-1's symbolic structures enforce consistency; creativity often requires the opposite.
-
-**Code generation.** While Apollo-1 can integrate with code execution tools, its symbolic language is purpose-built for task execution, not software development.
-
-**Low-stakes, high-variation scenarios.** Customer engagement campaigns, educational tutoring, entertainment chatbots — when conversational variety enhances user experience, probabilistic variation is preferable to formal enforcement.
-
-## 10. General Availability
-
-Apollo-1 is deployed at scale across regulated and unregulated industries, including at Fortune 500 organizations and in enterprise deployments worldwide ahead of general availability. Additional partnerships to power consumer-facing AI at some of the world's largest companies in retail, automotive, and regulated industries will be announced alongside general availability. Strategic go-to-market partnership with Google.
-
-A technical blog post — including architectural specifications, formal proofs, procedural ontology samples, evaluation methodologies, and turn-closure semantics — will be released alongside general availability.
-
-**General Availability: April 2026.**
-
-Apollo-1 integrates with existing Generative AI workflows and adapts to any API or external system — no need to change endpoints or preprocess data. Native connectivity with all major platforms (Salesforce, HubSpot, Zendesk, etc.), and full MCP support.
-
-Launching with:
-
-- Open APIs
+GA launches with:
+- The Conversational API — for task-oriented dialogue
+- The Playground and CLI
 - Full documentation and toolkits
-- Voice and image modalities
 
-As LLMs improve, Apollo-1's neural modules improve with them. The symbolic language evolves independently, expanding the granularity of domain-agnostic procedural states it can represent.
+Following in 2026: the Workflow Automation API, voice support, and fully local agent development in the CLI.
 
-## 11. Conclusion
+Apollo-1 improves on three axes. Its neural modules improve with every advance in low-latency LLMs. Its symbolic language evolves as we extend its coverage of task-oriented reasoning. And as coding-agent capability advances, so does the ease of building on and evolving Apollo-1.
 
-Open-ended agents work for users. Apollo-1 is the first foundation model for agents that work on behalf of the thing the user is talking to — a bank, an airline, an insurer, a hospital, a retailer. Every conversation that moves money, books a seat, files a claim, authorizes a return, or schedules a procedure is one of those conversations. They run the economy.
+---
 
-Until now, no model could be trusted to hold them. Generation and enforcement were separate systems, stapled together with a prompt and a prayer. Apollo-1 makes them the same computation — and puts the cognition in a file that anyone who owns the policy can read, rewrite, and verify.
+## Conclusion
 
-That's what comes after the transformer. Not a bigger language model. A different kind of model, for a different kind of agent, doing the work language models were never built to do.
+Open-ended agents work for users; their cognition lives at the model provider, and that suits the user.
+
+Apollo-1 is the foundation model the other kind of agent runs on — agents that act on behalf of the entity the user is talking to, whose cognition the company writes, owns, and changes. Because the agent is a program rather than a behavior trapped in weights, the company can read it, sign it, version it, and improve it, and Apollo-1 compiles it into reliable execution. Filing claims, opening disputes, processing returns, authorizing payments, completing bookings: these are the conversations that run the economy, and they are too consequential to leave to behavior no one can read.
+
+The deeper shift is what becomes possible once reasoning is a program. It stops being a model you rent and becomes software you own — versioned, tested, reviewed, and improved on a loop that turns compute into reliability, and surrounded, in time, by the same ecosystem every other kind of software has. A different kind of model, for a different kind of agent, on a different reasoning framework: the first an organization can not only call its own, but build on as software.
+
+Reasoning in code, not weights — reasoning, at last, as software.
+
+<Note>
+Augmented Intelligence (AUI) Inc. Patents pending.
+</Note>
 
 ---
 
@@ -294,7 +233,13 @@ That's what comes after the transformer. Not a bigger language model. A differen
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="bolt" href="/quickstart">
-    Understand the products and send your first message.
+    Build your first agent and send messages.
+  </Card>
+  <Card title="Messaging API" icon="message" href="/messaging-api/overview">
+    Send messages to agents programmatically.
+  </Card>
+  <Card title="CLI" icon="terminal" href="/cli/overview">
+    Build and manage agents from your terminal.
   </Card>
   <Card title="Changelog" icon="clock-rotate-left" href="/changelog">
     Latest updates and API changes.

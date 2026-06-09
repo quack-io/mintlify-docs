@@ -22,7 +22,7 @@ code .    # or: cursor .
 # Edit any .aui.json file — you get schema autocomplete in VSCode/Cursor
 
 # Validate your changes
-aui dvalidate
+aui validate
 
 # See what changed
 aui diff
@@ -53,7 +53,7 @@ cd my-new-agent
 # Edit the .aui.json files
 
 # Validate and push
-aui dvalidate
+aui validate
 aui push
 ```
 
@@ -67,7 +67,7 @@ Always validate before pushing. Use `--dry-run` to preview.
 
 ```bash
 # Validate all project files
-aui dvalidate
+aui validate
 
 # Preview what will be pushed
 aui push --dry-run
@@ -94,7 +94,7 @@ Test on staging before deploying to production.
 aui env staging
 aui import-agent
 # ... make changes ...
-aui dvalidate
+aui validate
 aui push
 
 # When ready, switch to production
@@ -115,7 +115,7 @@ export AUI_ACCOUNT_ID="your-account-id"
 export AUI_ORGANIZATION_ID="your-org-id"
 
 # Validate and push
-aui dvalidate
+aui validate
 aui push
 ```
 

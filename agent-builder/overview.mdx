@@ -1,78 +1,52 @@
 ---
-title: "Agent Builder API"
+title: "Management API"
 sidebarTitle: "Overview"
-description: "Complete API reference for creating, configuring, and managing AUI agents."
+description: "Programmatic agent creation and configuration API coming in Q2 2026."
 ---
 
 <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Upcoming Mid April 2026</span>
+  <span style={{ background: '#6366F1', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500 }}>Coming Q2 2026</span>
 </div>
 
-The Agent Builder API lets you programmatically create and configure AI agents that combine LLM reasoning with rule-based control. Define what your agent knows, what it can do, and exactly how it should behave — all through a REST API.
+The Management API will enable programmatic creation and configuration of Apollo-1 agents. It will provide REST endpoints for building agents, defining tools, managing entities and parameters, and configuring business logic — all through code.
 
 ---
 
-## Environments & Base URLs
+## Coming Soon
 
-| Environment | Outer Bridge API | Agent Settings | KBM (RAG) | API Workflow |
-| --- | --- | --- | --- | --- |
-| Staging | `https://api-staging.internal-aui.io/api/outer-bridge` | `https://api-staging.internal-aui.io/v3-1/agent-settings` | `https://api-staging.internal-aui.io/knowledge-base-manager/v1` | `https://api-staging.internal-aui.io/api/api-workflow` |
-| Production | Same as staging | Same as staging | Same as staging | Same as staging |
+The Management API is currently in development and will be released in **Q2 2026** alongside Apollo-1 General Availability.
 
-### URL Structure & Routing
+### Planned Capabilities
 
-The API is organized across four services, each with its own base URL and routing conventions:
+When released, the Management API will support:
 
-| Service | URL Prefix | Route Pattern | Description |
-| --- | --- | --- | --- |
-| **Outer Bridge** | `/api/outer-bridge` | `/identity/*`, `/network/v1/*` | Authentication, organizations, accounts, networks, API keys. All entity management routes are under `/network/v1/`. |
-| **Agent Settings V2** | `/v3-1/agent-settings` | `/v1/agent-tools/*`, `/v1/parameters/*`, `/v1/integrations/*`, `/v1/scope-entities/*` | Agent configuration CRUD. All routes are versioned under `/v1/`. |
-| **Knowledge Base Manager** | `/knowledge-base-manager/v1` | `/knowledge-bases`, `/bulk/*` | RAG operations. Single resources under `/knowledge-bases`, batch operations under `/bulk/`. |
-| **API Workflow** | `/api/api-workflow` | `/v1/api-integration/*` | Integration generation. |
-
-### Best Practices — URLs & Routing
-
-- **Always use the full base URL** — Each service has a distinct base path. Don't assume all endpoints share the same prefix. For example, `/identity/user/login` goes through Outer Bridge while `/v1/agent-tools` goes through Agent Settings.
-- **Note the version in the URL** — Agent Settings uses `/v3-1/agent-settings/v1/` (service version `v3-1`, API version `v1`). Don't confuse the two. The outer `v3-1` is the service deployment version; the inner `v1` is the API contract version.
-- **Route naming conventions** — Outer Bridge uses kebab-case for paths (`/api-key`, `/check-availability`). Agent Settings uses kebab-case (`/agent-tools`, `/general-settings`). Knowledge Base Manager uses kebab-case (`/knowledge-bases`). Stay consistent with these conventions when constructing URLs.
-- **Path parameters use IDs, not names** — Routes like `/network/v1/network/{networkId}` and `/v1/agent-tools/{toolName}` look similar but use different identifiers. Networks use MongoDB ObjectIds; tools and parameters use their `code`/`name` string. Check the endpoint docs for which identifier to use.
-- **Query parameters carry scope** — Agent Settings endpoints require `network_id`, `account_id`, `organization_id`, and `network_category_id` as query parameters, not path segments. Always include all four to avoid scope resolution errors.
-- **Use staging URLs for development** — Both staging and production currently point to the same infrastructure, but this will change. Build your integration against the staging URL and switch to production only for release.
-- **`/bulk/*` routes are for batch operations** — Knowledge Base Manager separates single-resource routes (`/knowledge-bases`) from batch routes (`/bulk/files`, `/bulk/websites`, `/bulk/export`, `/bulk/import`). Use bulk routes for multi-file operations.
+- **Projects management** — Create and manage organizations and accounts
+- **Agent lifecycle** — Create, configure, and deploy agents programmatically
+- **Version control** — Manage agent versions (draft, publish, activate, archive)
+- **Tool and integration definition** — Define what your agents can do
+- **Entity and parameter management** — Configure agent knowledge
+- **Rules and logic configuration** — Define business constraints and policies
+- **Knowledge base operations** — Manage RAG data sources and content
 
 ---
 
-## API Sections
+## Current Options
+
+While the Management API is under development, you can build and configure agents using:
 
 <CardGroup cols={2}>
-  <Card title="Authentication" icon="key" href="/agent-builder/authentication">
-    Authentication headers for all API services.
+  <Card title="Playground" icon="browser" href="https://playground.aui.io">
+    Web-based interface for building and testing agents with natural language.
   </Card>
-  <Card title="Identity & Auth" icon="user" href="/agent-builder/identity">
-    Email check, OTP login, logout.
-  </Card>
-  <Card title="Organizations" icon="building" href="/agent-builder/organizations">
-    List and retrieve organizations.
-  </Card>
-  <Card title="Accounts" icon="folder" href="/agent-builder/accounts">
-    List, create, and retrieve accounts.
-  </Card>
-  <Card title="Networks (Agents)" icon="robot" href="/agent-builder/networks">
-    List, create, and retrieve agents. Manage API keys.
-  </Card>
-  <Card title="Agent Settings — Read" icon="eye" href="/agent-builder/settings-read">
-    Fetch general settings, parameters, entities, integrations, tools, and rules.
-  </Card>
-  <Card title="Agent Settings — Write" icon="pen" href="/agent-builder/settings-write">
-    Create, update, and delete agent configuration.
-  </Card>
-  <Card title="Knowledge Bases (RAG)" icon="book" href="/agent-builder/knowledge-bases">
-    Manage knowledge bases, upload files, scrape websites, export/import.
-  </Card>
-  <Card title="API Workflow" icon="wand-magic-sparkles" href="/agent-builder/api-workflow">
-    Generate integrations from cURL commands.
-  </Card>
-  <Card title="Local Serve API" icon="laptop-code" href="/agent-builder/local-serve">
-    Routes exposed by `aui serve` for local development.
+  <Card title="CLI" icon="terminal" href="/cli/overview">
+    Command-line tool for local-first development with typed JSON configs.
   </Card>
 </CardGroup>
+
+---
+
+## Get Notified
+
+<Card title="General Availability Announcement" icon="bell" href="https://www.aui.io">
+  Sign up to be notified when the Management API launches with Apollo-1 GA in Q2 2026.
+</Card>
